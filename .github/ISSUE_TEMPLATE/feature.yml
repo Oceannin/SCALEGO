@@ -1,0 +1,19 @@
+name: Идея
+description: Предложить улучшение рабочего процесса
+title: "[Idea] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую задачу вы решаете?
+      description: Опишите, что мешает в текущем рабочем процессе.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Что должно измениться?
+      description: Желаемый результат и возможные альтернативы.
+    validations:
+      required: true

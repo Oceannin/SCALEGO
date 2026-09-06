@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460" role="img" aria-labelledby="title desc">
+  <title id="title">SCALEGO — Больше деталей. Меньше вес.</title>
+  <desc id="desc">Локальная мастерская изображений для Windows. Увеличение, сжатие и сравнение результата.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity=".06"/></pattern>
+    <linearGradient id="card" x2="1" y2="1"><stop stop-color="#262c33"/><stop offset="1" stop-color="#13171c"/></linearGradient>
+  </defs>
+  <rect width="1280" height="460" rx="24" fill="#101317"/>
+  <rect x="750" width="530" height="460" fill="url(#grid)"/>
+  <rect x="54" y="46" width="48" height="48" rx="12" fill="#f4511e"/>
+  <path d="M68 79L88 59M70 59H88V77" fill="none" stroke="#101317" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <text x="118" y="80" fill="#f5f5f3" font-size="30" font-weight="700" letter-spacing="1">SCALE<tspan fill="#f4511e">GO</tspan></text>
+    <text x="56" y="177" fill="#f7f5f0" font-size="54" font-weight="700">Больше деталей.</text>
+    <text x="56" y="243" fill="#f4511e" font-size="54" font-weight="700">Меньше вес.</text>
+    <text x="58" y="291" fill="#b9bfc7" font-size="22">Ваши изображения. Ваш компьютер.</text>
+    <text x="58" y="376" fill="#929aa5" font-size="16" letter-spacing="2">УВЕЛИЧИТЬ  /  СЖАТЬ  /  СРАВНИТЬ</text>
+    <text x="58" y="410" fill="#737e8c" font-size="14">WINDOWS x64  ·  ЛОКАЛЬНАЯ ОБРАБОТКА  ·  ALPHA</text>
+  </g>
+  <rect x="872" y="96" width="286" height="290" rx="24" fill="url(#card)" stroke="#48515c"/>
+  <rect x="894" y="118" width="242" height="207" rx="10" fill="#222b30"/>
+  <circle cx="1067" cy="174" r="29" fill="#f5d8ad"/>
+  <path d="M894 294L978 180L1040 274L1080 232L1136 303V325H894Z" fill="#7c978d"/>
+  <path d="M894 315L989 250L1069 301L1136 269V325H894Z" fill="#d26b3e"/>
+  <path d="M925 356H1038" stroke="#7b8590" stroke-width="7" stroke-linecap="round"/>
+  <path d="M1090 356H1117" stroke="#f4511e" stroke-width="7" stroke-linecap="round"/>
+  <rect x="769" y="271" width="118" height="118" rx="15" fill="#1b2127" stroke="#636e79"/>
+  <g fill="#7c978d"><path d="M786 336H802V320H818V304H834V320H850V336H866V369H786Z"/></g>
+  <path d="M786 353H818V337H850V353H866V369H786Z" fill="#d26b3e"/>
+  <rect x="842" y="290" width="16" height="16" fill="#f5d8ad"/>
+  <path d="M789 232V169H836M819 152L837 169L819 186" fill="none" stroke="#f4511e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

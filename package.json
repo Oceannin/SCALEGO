@@ -1,0 +1,105 @@
+{
+  "name": "scalego",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "description": "Local image upscaling and compression workstation",
+  "author": "Obsyanka",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "test": "node --test tests/*.test.cjs",
+    "engine:install": "node scripts/install-engine.cjs",
+    "dist:win": "npm run build && node scripts/prepare-release.cjs && electron-builder --win portable nsis",
+    "smoke": "node scripts/smoke.cjs",
+    "smoke:queue": "node scripts/queue-smoke.cjs",
+    "smoke:packaged": "node scripts/packaged-smoke.cjs",
+    "smoke:portable": "node scripts/portable-smoke.cjs"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "0.35.4",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "electron": "43.3.0",
+    "electron-builder": "26.15.7",
+    "typescript": "6.0.3",
+    "vite": "8.2.0",
+    "playwright": "^1.58.0"
+  },
+  "build": {
+    "appId": "ru.obsyanka.scalego",
+    "productName": "SCALEGO",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/sharp/**/*",
+      "node_modules/@img/**/*"
+    ],
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "extraResources": [
+      {
+        "from": "runtime",
+        "to": "engine",
+        "filter": [
+          "*.exe",
+          "vcomp140.dll",
+          "LICENSE",
+          "*-LICENSE.txt",
+          "README.md",
+          "SCALEGO-engine-manifest.json",
+          "models/**/*"
+        ]
+      },
+      {
+        "from": "build/licenses",
+        "to": "licenses"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "SCALEGO-${version}-Portable.${ext}"
+    }
+  },
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,36 @@
+name: Ошибка
+description: Сообщить о проблеме обработки или интерфейса
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Для уязвимостей используйте SECURITY.md. Не прикладывайте личные изображения или профиль приложения."
+  - type: input
+    id: version
+    attributes:
+      label: Версия SCALEGO
+      placeholder: 0.1.0-alpha.1, Portable или установщик
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Среда
+      description: Windows, GPU и версия драйвера (если ошибка связана с AI).
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги и параметры
+      description: Режим, метод, масштаб, формат, качество, без потерь, лимит веса; формат и размеры исходника.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Ожидаемый и фактический результат
+      description: Текст ошибки и обезличенный пример, если его разрешено публиковать.
+    validations:
+      required: true

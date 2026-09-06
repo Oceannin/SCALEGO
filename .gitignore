@@ -1,0 +1,22 @@
+node_modules/
+dist/
+release/
+artifacts/
+.local/
+runtime/
+.codebase-memory/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+/build/
+
+# Local research predating the standalone application; preserved on disk.
+/docs/ARCHITECTURE.md
+/docs/BUILD_PLAN.md
+/docs/CONCEPT_REVIEW_2026-09-05.md
+/docs/PRODUCT_STRATEGY.md
+/docs/ROADMAP.md
+/docs/decisions/0001-open-source-strategy.md
