@@ -56,7 +56,6 @@
         "to": "engine",
         "filter": [
           "*.exe",
-          "vcomp140.dll",
           "LICENSE",
           "*-LICENSE.txt",
           "README.md",

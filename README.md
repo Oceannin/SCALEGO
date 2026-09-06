@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/images/hero.svg" width="100%" alt="SCALEGO — Больше деталей. Меньше вес. Ваши изображения. Ваш компьютер." />
   <p><strong>Увеличивайте изображения и готовьте их к публикации — в одном окне.</strong><br/>AI-увеличение, сжатие PNG / JPG / WebP / AVIF и сравнение до/после. Всё локально.</p>
-  <p><a href="https://github.com/Oceannin/SCALEGO/releases/tag/v0.1.0-alpha.1"><strong>Скачать для Windows</strong></a> · <a href="#за-минуту-до-первого-результата">Быстрый старт</a> · <a href="#посмотрите-как-это-работает">Посмотреть приложение</a> · <a href="docs/README.md">Документация</a></p>
+  <p><a href="https://github.com/Oceannin/SCALEGO/releases"><strong>Скачать для Windows</strong></a> · <a href="#за-минуту-до-первого-результата">Быстрый старт</a> · <a href="#посмотрите-как-это-работает">Посмотреть приложение</a> · <a href="docs/README.md">Документация</a></p>
   <p><code>Windows x64</code> &nbsp; <code>Alpha</code> &nbsp; <code>Без аккаунта</code> &nbsp; <code>Без загрузки в облако</code></p>
 </div>
 
@@ -40,7 +40,7 @@
 
 ## Скачать
 
-**[Открыть выпуск 0.1.0-alpha.1 →](https://github.com/Oceannin/SCALEGO/releases/tag/v0.1.0-alpha.1)**
+**[Открыть загрузки SCALEGO →](https://github.com/Oceannin/SCALEGO/releases)**
 
 | Пакет | Как запустить |
 | :--- | :--- |
@@ -48,7 +48,7 @@
 | `SCALEGO Setup 0.1.0-alpha.1.exe` | Установить в выбранную папку |
 | `SHA256SUMS.txt` | Проверить целостность скачанного файла |
 
-Windows x64. Модели AI включены; изображения обрабатываются без интернета. Для AI нужен совместимый Vulkan-драйвер. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
+Windows x64. Модели AI включены; изображения обрабатываются без интернета. Для AI нужны совместимый Vulkan-драйвер и [Microsoft Visual C++ Runtime x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Установите Runtime с сайта Microsoft, если его ещё нет в системе. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
 
 > **Ранняя alpha.** Windows-файлы не подписаны цифровой подписью. Перед запуском сверяйте источник и контрольную сумму. Совместимость проверена на одной Windows 11 машине; работа со всеми видеокартами не заявляется. [Требования и ограничения](docs/USER_GUIDE.md#требования-и-ограничения).
 
