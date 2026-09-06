@@ -45,7 +45,7 @@
 | Пакет | Как запустить |
 | :--- | :--- |
 | `SCALEGO-0.1.0-alpha.1-Portable.exe` | Скачать и открыть — установка не нужна |
-| `SCALEGO Setup 0.1.0-alpha.1.exe` | Установить в выбранную папку |
+| `SCALEGO-0.1.0-alpha.1-Setup.exe` | Установить в выбранную папку |
 | `SHA256SUMS.txt` | Проверить целостность скачанного файла |
 
 Windows x64. Модели AI включены; изображения обрабатываются без интернета. Для AI нужны совместимый Vulkan-драйвер и [Microsoft Visual C++ Runtime x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Установите Runtime с сайта Microsoft, если его ещё нет в системе. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
