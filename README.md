@@ -89,4 +89,4 @@ SCALEGO построен на Electron, React, TypeScript, Sharp/libvips и Real
 
 SCALEGO — проект [Oceannin](https://github.com/Oceannin). Спасибо авторам [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN), [ncnn](https://github.com/Tencent/ncnn), [Sharp](https://github.com/lovell/sharp), [libvips](https://github.com/libvips/libvips), [Electron](https://github.com/electron/electron), [React](https://github.com/facebook/react) и [Lucide](https://github.com/lucide-icons/lucide).
 
-Лицензии компонентов и происхождение моделей: [Third-party notices](THIRD_PARTY_NOTICES.md). Лицензия собственного кода пока не назначена; лицензии зависимостей не распространяются автоматически на SCALEGO.
+Собственный код SCALEGO распространяется по лицензии [MIT](LICENSE). Лицензии сторонних компонентов и моделей сохраняются отдельно: [Third-party notices](THIRD_PARTY_NOTICES.md).

@@ -48,9 +48,14 @@
       "dist/**/*",
       "electron/**/*",
       "package.json",
+      "LICENSE",
       "THIRD_PARTY_NOTICES.md"
     ],
     "extraResources": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
+      },
       {
         "from": "runtime",
         "to": "engine",
@@ -100,5 +105,5 @@
       "artifactName": "SCALEGO-${version}-Portable.${ext}"
     }
   },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }
