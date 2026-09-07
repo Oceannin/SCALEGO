@@ -12,8 +12,9 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
   await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360"><rect x="40" y="40" width="400" height="280" rx="60" fill="#f4511e"/><circle cx="240" cy="180" r="70" fill="#111419"/></svg>')).png().toFile(path.join(profile, 'smoke-source.png'))
   const server = net.createServer(); await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
   const port = server.address().port; await new Promise(resolve => server.close(resolve))
-  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
-  const child = spawn(path.join(root, 'release/SCALEGO-0.1.0-alpha.1-Portable.exe'), [`--inspect=${port}`, '--remote-debugging-port=0', '--user-data-dir=' + profile], { env, windowsHide: true, stdio: 'ignore' })
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE; delete env.SCALEGO_ENGINE_ROOT
+  const pkg = require('../package.json')
+  const child = spawn(path.join(root, pkg.build.directories.output, `SCALEGO-${pkg.version}-Portable.exe`), [`--inspect=${port}`, '--remote-debugging-port=0', '--user-data-dir=' + profile], { env, windowsHide: true, stdio: 'ignore' })
   let exited = false; child.on('exit', () => { exited = true })
   try {
     const until = Date.now() + 60000

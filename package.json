@@ -1,6 +1,6 @@
 {
   "name": "scalego",
-  "version": "0.1.0-alpha.1",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "description": "Local image upscaling and compression workstation",
   "author": "Obsyanka",
@@ -17,7 +17,10 @@
     "smoke": "node scripts/smoke.cjs",
     "smoke:queue": "node scripts/queue-smoke.cjs",
     "smoke:packaged": "node scripts/packaged-smoke.cjs",
-    "smoke:portable": "node scripts/portable-smoke.cjs"
+    "smoke:portable": "node scripts/portable-smoke.cjs",
+    "engine:install:evaluation": "node scripts/install-engine.cjs --evaluation",
+    "benchmark": "node scripts/benchmark.cjs",
+    "smoke:models": "node scripts/models-smoke.cjs"
   },
   "dependencies": {
     "react": "19.2.8",
@@ -57,15 +60,10 @@
         "to": "LICENSE"
       },
       {
-        "from": "runtime",
+        "from": "build/engine",
         "to": "engine",
         "filter": [
-          "*.exe",
-          "LICENSE",
-          "*-LICENSE.txt",
-          "README.md",
-          "SCALEGO-engine-manifest.json",
-          "models/**/*"
+          "**/*"
         ]
       },
       {
@@ -75,10 +73,19 @@
       {
         "from": "THIRD_PARTY_NOTICES.md",
         "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "docs",
+        "to": "docs",
+        "filter": [
+          "MODEL_AUDIT.md",
+          "MULTI_ENGINE.md",
+          "JPEGLI_AUDIT.md"
+        ]
       }
     ],
     "directories": {
-      "output": "release"
+      "output": "release/0.2.0-alpha.1"
     },
     "win": {
       "target": [

@@ -9,7 +9,7 @@ const root = path.join(__dirname, '..')
  const dataDirectory=await fs.mkdtemp(path.join(artifacts,'desktop-session-'))
  const source=path.join(dataDirectory,'smoke-source.png')
  await sharp(Buffer.from('<svg width="480" height="360" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="35" width="400" height="290" rx="70" fill="#e7c397"/><circle cx="190" cy="155" r="60" fill="#8d4b30"/><path d="M110 290L310 55 405 290Z" fill="#54756a"/><circle cx="310" cy="200" r="65" fill="#e47642"/><path d="M80 250Q200 110 380 280" fill="none" stroke="#faf0da" stroke-width="12"/></svg>')).png().toFile(source)
- const env={...process.env,SCALEGO_SMOKE_INPUT:JSON.stringify([source]),SCALEGO_TEST_DATA:dataDirectory};delete env.ELECTRON_RUN_AS_NODE
+ const env={...process.env,SCALEGO_SMOKE_INPUT:JSON.stringify([source]),SCALEGO_TEST_DATA:dataDirectory};delete env.ELECTRON_RUN_AS_NODE;delete env.SCALEGO_ENGINE_ROOT
  const launchOptions=process.env.SCALEGO_PACKAGED_EXE ? {executablePath:process.env.SCALEGO_PACKAGED_EXE,args:['--user-data-dir='+dataDirectory],env} : {args:[root],env}
  const desktop=await electron.launch(launchOptions)
  let jobCount=0

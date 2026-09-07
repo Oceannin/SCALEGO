@@ -16,10 +16,13 @@ app.on('second-instance', () => { if (window && !window.isDestroyed()) { if (win
 protocol.registerSchemesAsPrivileged([{ scheme: 'scalego-asset', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }])
 let window, activeChild, activeJob, processing = false, exportDirectory = null
 const assets = new Map(), jobs = []
-const engineRoot = () => app.isPackaged ? path.join(process.resourcesPath, 'engine') : path.join(__dirname, '..', 'runtime')
+// Optional pinned runtime outside the portable extraction directory. Unknown or
+// modified executables/weights still fail the same integrity checks.
+const engineRoot = () => process.env.SCALEGO_ENGINE_ROOT && path.isAbsolute(process.env.SCALEGO_ENGINE_ROOT)
+  ? process.env.SCALEGO_ENGINE_ROOT : app.isPackaged ? path.join(process.resourcesPath, 'engine') : path.join(__dirname, '..', 'runtime')
 const workRoot = () => path.join(app.getPath('userData'), 'work')
 const publicAsset = asset => ({ id: asset.id, name: asset.name, width: asset.width, height: asset.height, bytes: asset.bytes, format: asset.format, alpha: asset.alpha, url: `scalego-asset://image/${asset.id}`, thumbnail: `scalego-asset://image/${asset.id}?thumb=1` })
-const publicJob = job => ({ id: job.id, assetId: job.assetId, name: job.name, status: job.status, percent: job.percent, stage: job.stage, error: job.error, options: job.options, result: job.result ? { ...publicAsset(assets.get(job.result.assetId)), originalBytes: job.result.originalBytes, quality: job.result.quality, warnings: job.result.warnings, elapsedMs: job.result.elapsedMs, targetMet: job.result.targetMet } : undefined })
+const publicJob = job => ({ id: job.id, assetId: job.assetId, name: job.name, status: job.status, percent: job.percent, stage: job.stage, error: job.error, errorCode: job.errorCode, options: job.options, result: job.result ? { ...publicAsset(assets.get(job.result.assetId)), originalBytes: job.result.originalBytes, quality: job.result.quality, warnings: job.result.warnings, elapsedMs: job.result.elapsedMs, targetMet: job.result.targetMet } : undefined })
 const snapshot = () => ({ assets: [...assets.values()].filter(a => !a.result).map(publicAsset), jobs: jobs.map(publicJob), busy: processing, outputDirectory: exportDirectory ? path.basename(exportDirectory) : null })
 let persistTimer
 let persistChain = Promise.resolve()
@@ -87,7 +90,7 @@ function runWorker(payload, job) {
     child.on('message', message => {
       if (message.type === 'progress' && job.status === 'running') { job.percent = Math.round(message.percent); job.stage = message.stage; notify() }
       if (message.type === 'result') { settled = true; resolve(message.result) }
-      if (message.type === 'error') { settled = true; reject(new Error(message.message)) }
+      if (message.type === 'error') { settled = true; reject(Object.assign(new Error(message.message), { code: message.code })) }
     })
     child.on('error', error => { settled = true; reject(error) })
     child.on('exit', code => { if (activeChild === child) activeChild = null; if (!settled) reject(new Error(job.status === 'canceled' ? 'Обработка отменена.' : `Процесс обработки завершился (код ${code}).`)) })
@@ -111,7 +114,7 @@ async function processQueue() {
         output.name = `${path.parse(job.name).name} · ${result.format.toUpperCase()}`
         job.result = { ...result, assetId: output.id }; job.status = 'done'; job.percent = 100; job.stage = 'Готово'
         await fs.writeFile(path.join(tempDirectory, 'job.json'), JSON.stringify({ source: assets.get(job.assetId).path, options: job.options, result }, null, 2))
-      } catch (error) { if (job.status === 'running') { job.status = 'error'; job.error = error.message; job.stage = 'Ошибка' } }
+      } catch (error) { if (job.status === 'running') { job.status = 'error'; job.error = error.message; job.errorCode = error.code; job.stage = 'Ошибка' } }
       finally { activeJob = null; notify() }
     }
   } finally { processing = false; notify() }

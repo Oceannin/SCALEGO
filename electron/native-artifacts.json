@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "checksumProvenance": "Official HTTPS release downloads; locally computed SHA256, not signed upstream attestations. ESRGAN pins inherited and checked against original runtime manifest. See docs/MODEL_AUDIT.md for separate weights licensing.",
+  "sources": [
+    {
+      "name": "engine",
+      "version": "v0.2.0",
+      "url": "https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan/releases/download/v0.2.0/realesrgan-ncnn-vulkan-v0.2.0-windows.zip",
+      "sha256": "1bbbdb12d470af80b035c773682e144c6c2f6ece9210832a289af0a48ce3fa9a"
+    },
+    {
+      "name": "models",
+      "version": "v0.2.5.0",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-windows.zip",
+      "sha256": "abc02804e17982a3be33675e4d471e91ea374e65b70167abc09e31acb412802d"
+    },
+    {
+      "name": "esrnet",
+      "version": "v0.2.2.4",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/realesrgan-ncnn-vulkan-20210901-windows.zip",
+      "sha256": "4c3a9220c2b376b72910bdb936552d018ed4b33742599a0383b1261623970dd3"
+    },
+    {
+      "name": "cugan",
+      "version": "20220728",
+      "url": "https://github.com/nihui/realcugan-ncnn-vulkan/releases/download/20220728/realcugan-ncnn-vulkan-20220728-windows.zip",
+      "sha256": "c6e08d46c11704b1e3a1ada9ddd591cb5005f52f132136c8633ba25def400e01"
+    }
+  ],
+  "files": {
+    "realesrgan-ncnn-vulkan.exe": {
+      "source": "engine",
+      "archivePath": "realesrgan-ncnn-vulkan-v0.2.0-windows/realesrgan-ncnn-vulkan.exe",
+      "sha256": "07e49f7cbb4ede01ae4dd4c399d3a7e5846e3d2085c3128eff881e55cb7b1a0c",
+      "bytes": 6161408,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x2.bin": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x2.bin",
+      "sha256": "548a36f9c3f4ab8da56cd3b13badf23968bee207b396dad14d04b830e5f2ab2d",
+      "bytes": 1247368,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x2.param": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x2.param",
+      "sha256": "b88ff4f00ebf019a7fdac17fdd45a7fd3665d37509efc5baf2e4da2e24420a04",
+      "bytes": 3173,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x3.bin": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x3.bin",
+      "sha256": "548a36f9c3f4ab8da56cd3b13badf23968bee207b396dad14d04b830e5f2ab2d",
+      "bytes": 1247368,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x3.param": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x3.param",
+      "sha256": "d1a5755008791d09b57e3425fc9dd0bd26b00fdf79c606210bc0e693f8230881",
+      "bytes": 3173,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x4.bin": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x4.bin",
+      "sha256": "548a36f9c3f4ab8da56cd3b13badf23968bee207b396dad14d04b830e5f2ab2d",
+      "bytes": 1247368,
+      "redistribution": true
+    },
+    "models/realesr-animevideov3-x4.param": {
+      "source": "models",
+      "archivePath": "models/realesr-animevideov3-x4.param",
+      "sha256": "850a248e7c14c27e5bd8cf7265113a9441036a7db63963bb8aa5169d788a435e",
+      "bytes": 3077,
+      "redistribution": true
+    },
+    "models/realesrgan-x4plus-anime.bin": {
+      "source": "models",
+      "archivePath": "models/realesrgan-x4plus-anime.bin",
+      "sha256": "fe01c269cfd10cdef8e018ab66ebe750cf79c7af4d1f9c16c737e1295229bacc",
+      "bytes": 8943500,
+      "redistribution": true
+    },
+    "models/realesrgan-x4plus-anime.param": {
+      "source": "models",
+      "archivePath": "models/realesrgan-x4plus-anime.param",
+      "sha256": "2b8fb6e0ae4d2d85704ca08c119a2f5ea40add4f2ecd512eb7f4cd44b6127ed4",
+      "bytes": 30290,
+      "redistribution": true
+    },
+    "models/realesrgan-x4plus.bin": {
+      "source": "models",
+      "archivePath": "models/realesrgan-x4plus.bin",
+      "sha256": "713ee713b0353afaa27976f0563a64a5043bd70b9bd8936c2e26e25ebcdbcddf",
+      "bytes": 33424520,
+      "redistribution": true
+    },
+    "models/realesrgan-x4plus.param": {
+      "source": "models",
+      "archivePath": "models/realesrgan-x4plus.param",
+      "sha256": "35330ececcea33b6c397a72548e788d5d53becee4734c50b7fada36e89f10a86",
+      "bytes": 116029,
+      "redistribution": true
+    },
+    "models/realesrnet-x4plus.bin": {
+      "source": "esrnet",
+      "archivePath": "models/realesrnet-x4plus.bin",
+      "sha256": "26bccfcc82d9e8260c0c6b0dffb34ab297982740882d1f33c6d423f70b562c40",
+      "bytes": 33424520,
+      "redistribution": true
+    },
+    "models/realesrnet-x4plus.param": {
+      "source": "esrnet",
+      "archivePath": "models/realesrnet-x4plus.param",
+      "sha256": "35330ececcea33b6c397a72548e788d5d53becee4734c50b7fada36e89f10a86",
+      "bytes": 116029,
+      "redistribution": true
+    },
+    "realcugan-ncnn-vulkan.exe": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/realcugan-ncnn-vulkan.exe",
+      "sha256": "af5a36b124c993c77d0e69e42f640cdc108060874ed060d34ceef66d52c77a9d",
+      "bytes": 6656512,
+      "redistribution": true
+    },
+    "realcugan/models-se/up2x-denoise3x.bin": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up2x-denoise3x.bin",
+      "sha256": "610ebae63f388fe6f39615cc5f4eaeb038d5aa6ba8b299ba3b989f7f7a1a280a",
+      "bytes": 2573648,
+      "redistribution": true
+    },
+    "realcugan/models-se/up2x-denoise3x.param": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up2x-denoise3x.param",
+      "sha256": "91efac7489bf249f092faa3764e3a3d1d31ef290051e39f2afd2138c98ccce30",
+      "bytes": 4818,
+      "redistribution": true
+    },
+    "realcugan/models-se/up3x-denoise3x.bin": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up3x-denoise3x.bin",
+      "sha256": "fdb269034f7d6bf59be8fe1c03c43a75671af464e045a13870b24b649d64f1f6",
+      "bytes": 2577104,
+      "redistribution": true
+    },
+    "realcugan/models-se/up3x-denoise3x.param": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up3x-denoise3x.param",
+      "sha256": "9e71ba0bce194f6a95422140c8caa25accbbfd9ec84a0cc08f7f4ec1e615a5a8",
+      "bytes": 4818,
+      "redistribution": true
+    },
+    "realcugan/models-se/up4x-denoise3x.bin": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up4x-denoise3x.bin",
+      "sha256": "1fe05d6066901d354bbbc0cb53fba6588ef7637e1ec9c3bce7546900484d0b35",
+      "bytes": 2818348,
+      "redistribution": true
+    },
+    "realcugan/models-se/up4x-denoise3x.param": {
+      "source": "cugan",
+      "archivePath": "realcugan-ncnn-vulkan-20220728-windows/models-se/up4x-denoise3x.param",
+      "sha256": "63e8f6a5a57acb4b7678fd928612538ae7208c836223becdb66ffb82bd2aab9b",
+      "bytes": 5078,
+      "redistribution": true
+    }
+  }
+}

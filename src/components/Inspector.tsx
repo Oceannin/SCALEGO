@@ -5,6 +5,7 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
   const update = (patch: Partial<Options>) => setOptions({ ...options, ...patch })
   const upscale = options.mode !== 'compress', compression = options.mode !== 'upscale'
   const lossless = options.format !== 'jpeg' && options.lossless
+  const selectedModel = engine.models.find(model => model.id === options.model)
   return <aside className="inspector" aria-label="Настройки обработки">
     <div className="panel-heading"><h2>Обработка</h2><span className="eyebrow">01 — 02</span></div>
     <div className="inspector-scroll">
@@ -20,10 +21,16 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
       {upscale && <section className="settings-section"><h3><span className="step">01</span>Увеличение</h3>
         <fieldset disabled={busy}><legend>Масштаб</legend><div className="segments">{[2, 3, 4].map(scale => <button type="button" aria-pressed={options.scale === scale} key={scale} onClick={() => update({ scale })}>{scale}×</button>)}</div></fieldset>
         <label className="field">Метод<select disabled={busy} value={options.method} onChange={e => update({ method: e.target.value as Options['method'] })}>
-          <option value="ai" disabled={!engine.available}>AI · Real-ESRGAN</option><option value="lanczos">Обычное · Lanczos</option><option value="nearest">Пиксель-арт · Nearest</option>
+          <option value="ai" disabled={!engine.available}>AI · Улучшение деталей</option><option value="lanczos">Обычное · Lanczos</option><option value="nearest">Пиксель-арт · Nearest</option>
         </select></label>
-        {options.method === 'ai' && <label className="field">Тип изображения<select disabled={busy} value={options.model} onChange={e => update({model: e.target.value as Options['model']})}><option value="illustration">Иллюстрации · быстро</option><option value="photo">Фотографии · детально</option></select></label>}
-        <p className="field-help">{options.method === 'ai' ? (options.model === 'photo' ? 'Модель x4plus для фотографий. Промежуточный масштаб 4×, исходник до 6,25 Мп.' : 'Лёгкая модель для иллюстраций. Детали могут измениться — сравните результат.') : options.method === 'nearest' ? 'Сохраняет жёсткую пиксельную сетку, без сглаживания.' : 'Увеличивает со сглаживанием, без нейросетевой дорисовки.'}</p>
+        {options.method === 'ai' && <>
+          <label className="field">Желаемый результат<select disabled={busy} value={options.model} aria-describedby="model-help" onChange={e => update({ model: e.target.value as Options['model'] })}>
+            {engine.models.map(model => <option key={model.id} value={model.id}>{model.displayName}{model.available ? '' : ' · недоступно'}</option>)}
+          </select></label>
+          <p className="field-help" id="model-help">{selectedModel?.available ? selectedModel.qualityProfile : selectedModel?.message || engine.message}</p>
+          <details className="advanced"><summary>О модели</summary><p className="field-help">{selectedModel?.name}<br/>{selectedModel?.nativeScales.length === 1 ? 'Обработка 4×; для 2×/3× — качественное уменьшение. Исходник до 6,25 Мп.' : 'Нативная обработка 2×, 3× и 4×.'}<br/>Прозрачность масштабируется отдельно. {selectedModel?.available && 'Vulkan проверяется при обработке.'}</p></details>
+        </>}
+        {options.method !== 'ai' && <p className="field-help">{options.method === 'nearest' ? 'Сохраняет жёсткую пиксельную сетку, без сглаживания.' : 'Увеличивает со сглаживанием, без нейросетевой дорисовки.'}</p>}
         {asset && <div className="dimension-plan"><span>{asset.width} × {asset.height}</span><ArrowRight size={14}/><strong>{asset.width * options.scale} × {asset.height * options.scale}</strong></div>}
       </section>}
       {compression && <section className="settings-section"><h3><span className="step">{upscale ? '02' : '01'}</span>Сжатие</h3>
@@ -37,6 +44,6 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
       {!compression && <p className="inline-note"><Info size={15}/>Результат сохраняется в PNG без потерь. Сжатие можно включить вторым этапом.</p>}
       <section className="settings-section export-section"><h3>Сохранение</h3><button className="directory-button" onClick={chooseDirectory} disabled={busy}><FolderOpen size={18}/><span>{outputDirectory || 'Выбрать папку'}<small>Исходники останутся на месте</small></span></button><p className="field-help">Выход: sRGB, 8 бит на канал. Метаданные EXIF удаляются. «Без потерь» относится к подготовленным пикселям.</p></section>
     </div>
-    <div className="engine-status"><Cpu size={15}/><span>{engine.available ? 'AI-движок готов' : 'Обычное увеличение доступно'}</span><span className={`status-dot ${engine.available ? 'ready' : ''}`}/></div>
+    <div className="engine-status"><Cpu size={15}/><span>{engine.available ? `AI-моделей установлено: ${engine.models.filter(model => model.available).length}` : 'Обычное увеличение доступно'}</span><span className={`status-dot ${engine.available ? 'ready' : ''}`}/></div>
   </aside>
 }

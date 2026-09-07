@@ -4,12 +4,28 @@ const crypto = require('node:crypto')
 const sharp = require('sharp')
 const root = path.join(__dirname, '..')
 ;(async () => {
-  const manifest = JSON.parse(await fs.readFile(path.join(root, 'runtime/SCALEGO-engine-manifest.json'), 'utf8'))
-  for (const [file, digest] of Object.entries(manifest.files)) {
+  const manifest = require('../electron/native-artifacts.json')
+  const selected = Object.entries(manifest.files).filter(([, pin]) => pin.redistribution)
+  for (const [file, pin] of selected) {
     const actual = crypto.createHash('sha256').update(await fs.readFile(path.join(root, 'runtime', file))).digest('hex')
-    if (actual !== digest) throw new Error('Engine checksum mismatch: ' + file)
+    if (actual !== pin.sha256) throw new Error('Engine checksum mismatch: ' + file)
   }
   const out = path.join(root, 'build'); await fs.mkdir(out, { recursive: true })
+  const noticeRecords = require('../third-party/inference/sources.json')
+  for (const notice of noticeRecords) {
+    const actual = crypto.createHash('sha256').update(await fs.readFile(path.join(root, 'third-party/inference', notice.file))).digest('hex')
+    if (actual !== notice.sha256) throw new Error('Inference notice checksum mismatch: ' + notice.file)
+  }
+  // Build only from the reviewed allowlist, never wildcard-copy local runtimes.
+  const engine = path.resolve(out, 'engine')
+  if (path.dirname(engine) !== path.resolve(root, 'build') || path.basename(engine) !== 'engine') throw new Error('Unsafe staging path')
+  await fs.rm(engine, { recursive: true, force: true }); await fs.mkdir(engine)
+  for (const [file] of selected) {
+    await fs.mkdir(path.dirname(path.join(engine, file)), { recursive: true })
+    await fs.copyFile(path.join(root, 'runtime', file), path.join(engine, file))
+  }
+  await fs.cp(path.join(root, 'third-party/inference'), path.join(engine, 'licenses'), { recursive: true })
+  await fs.writeFile(path.join(engine, 'SCALEGO-engine-manifest.json'), JSON.stringify({ ...manifest, files: Object.fromEntries(selected) }, null, 2))
   const licenses = path.join(out, 'licenses'); await fs.mkdir(licenses, { recursive: true })
   await fs.cp(path.join(root, 'third-party'), path.join(licenses, 'native-image-libraries'), { recursive: true })
   const seen = new Set()

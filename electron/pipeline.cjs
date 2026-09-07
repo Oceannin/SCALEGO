@@ -5,6 +5,8 @@ const path = require('node:path')
 const crypto = require('node:crypto')
 const { validateOptions, dimensions, MAX_INPUT_PIXELS } = require('./contracts.cjs')
 const { upscaleNative } = require('./engine.cjs')
+const { planUpscale } = require('./models.cjs')
+const { EngineError } = require('./engine-errors.cjs')
 sharp.cache({ memory: 96, files: 0, items: 32 })
 sharp.concurrency(2)
 const read = input => sharp(input, { limitInputPixels: MAX_INPUT_PIXELS, failOn: 'error', sequentialRead: true })
@@ -53,7 +55,7 @@ async function compressBuffer(source, options, signal, progress) {
   }
   return { buffer: output, quality, targetMet: !budget || output.length <= budget }
 }
-async function processImage({ input, tempDirectory, options: raw, engineRoot }, progress = () => {}, signal) {
+async function processImage({ input, tempDirectory, options: raw, engineRoot, gpu }, progress = () => {}, signal) {
   const options = validateOptions(raw)
   const start = Date.now()
   const source = await inspect(input)
@@ -62,21 +64,25 @@ async function processImage({ input, tempDirectory, options: raw, engineRoot }, 
   const stop = () => { if (signal?.aborted) throw new Error('Обработка отменена.') }
   progress(3, 'Подготовка')
   let normalized = await read(input).rotate().toColourspace('srgb').png().toBuffer()
+  let inference = null
   stop()
   if (options.mode !== 'compress') {
     if (options.method === 'ai') {
       const rgbPath = path.join(tempDirectory, 'input-rgb.png'), aiPath = path.join(tempDirectory, 'ai.png')
       await sharp(normalized).removeAlpha().png().toFile(rgbPath)
-      const nativeScale = options.model === 'photo' ? 4 : options.scale
-      if (options.model === 'photo' && source.width * source.height * 16 > 100_000_000)
-        throw new Error('Модель «Фотографии» использует промежуточное увеличение 4×: лимит исходника 6,25 Мп. Выберите другую модель или уменьшите исходник.')
+      const plan = planUpscale(options.model, options.scale)
+      const { nativeScale } = plan
       const nativeTarget = dimensions(source.meta, { mode: 'upscale', scale: nativeScale })
       progress(10, 'AI-увеличение')
-      await upscaleNative(engineRoot, rgbPath, aiPath, nativeScale, p => progress(10 + p * 0.53, 'AI-увеличение'), signal, options.model)
+      const diagnostic = await upscaleNative(engineRoot, rgbPath, aiPath, options.scale, p => progress(10 + p * 0.53, 'AI-увеличение'), signal, options.model,
+        { gpu, log: entry => fs.appendFile(path.join(tempDirectory, 'engine-log.jsonl'), JSON.stringify({ ...entry, requestedScale: options.scale }) + '\n') })
+      inference = { engine: plan.engine.id, binaryVersion: plan.engine.version, model: plan.model.name, modelVersion: plan.model.version, modelFiles: plan.modelFiles,
+        modelSha256: Object.fromEntries(plan.modelFiles.map(file => [file, require('./native-artifacts.json').files[file].sha256])),
+        requestedScale: options.scale, nativeScale, intermediateResize: plan.intermediateResize, alpha: source.alpha ? 'separate-cubic' : 'none', backend: 'Vulkan', tile: diagnostic.tile, durationMs: diagnostic.durationMs }
       stop()
       let result = sharp(aiPath, { limitInputPixels: 100_000_000 })
-      const actual = await result.metadata()
-      if (actual.width !== nativeTarget.width || actual.height !== nativeTarget.height) throw new Error('AI-движок вернул неожиданный размер.')
+      const actual = await result.metadata().catch(() => { throw new EngineError('UNEXPECTED_ENGINE_ERROR') })
+      if (actual.width !== nativeTarget.width || actual.height !== nativeTarget.height) throw new EngineError('UNEXPECTED_ENGINE_ERROR')
       if (nativeScale !== options.scale) result = result.resize(target.width, target.height, { kernel: 'lanczos3' })
       if (source.alpha) {
         const alpha = await sharp(normalized).extractChannel('alpha').resize(target.width, target.height, { kernel: 'cubic' }).raw().toBuffer()
@@ -104,7 +110,7 @@ async function processImage({ input, tempDirectory, options: raw, engineRoot }, 
   if (!result.targetMet) warnings.push('Не удалось достичь заданного веса. Размеры изображения сохранены.')
   if (source.alpha && options.format === 'jpeg') warnings.push('JPEG не поддерживает прозрачность: применена выбранная подложка.')
   if (result.buffer.length >= source.bytes) warnings.push('Результат больше исходника. Это возможно при увеличении или смене формата.')
-  const recipe = { schemaVersion: 1, appVersion: '0.1.0-alpha.1', sourceHash, options, output: { ...target, bytes: result.buffer.length, quality: result.quality, sha256: crypto.createHash('sha256').update(result.buffer).digest('hex') }, warnings }
+  const recipe = { schemaVersion: 1, appVersion: require('../package.json').version, sourceHash, options, inference, output: { ...target, bytes: result.buffer.length, quality: result.quality, sha256: crypto.createHash('sha256').update(result.buffer).digest('hex') }, warnings }
   await fs.writeFile(path.join(tempDirectory, 'recipe.scalego'), JSON.stringify(recipe, null, 2))
   progress(100, 'Готово')
   return { outputPath, recipePath: path.join(tempDirectory, 'recipe.scalego'), ...target, bytes: result.buffer.length, originalBytes: source.bytes, format: options.format, alpha: Boolean(verification.hasAlpha), quality: result.quality, targetMet: result.targetMet, warnings, elapsedMs: Date.now() - start }

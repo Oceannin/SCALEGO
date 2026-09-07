@@ -8,7 +8,7 @@ process.on('message', async message => {
   try {
     const result = await processImage(message.payload, (percent, stage) => process.send?.({ type: 'progress', percent, stage }), controller.signal)
     process.send?.({ type: 'result', result }, () => process.exit(0))
-  } catch (error) { process.send?.({ type: 'error', message: error.message }, () => process.exit(1)) }
+  } catch (error) { process.send?.({ type: 'error', message: error.message, code: error.code }, () => process.exit(1)) }
 })
 
 process.on('disconnect', () => { controller.abort(); cancelEngine(); process.exit(2) })

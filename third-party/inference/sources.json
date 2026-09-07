@@ -1,0 +1,82 @@
+[
+  {
+    "file": "Real-CUGAN-runtime-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/nihui/realcugan-ncnn-vulkan/395302c5c70f1bff604c974e92e0a87e45c9f9ee/LICENSE",
+    "sha256": "57157b0fc6954dd1645dc674cc99bebbab4cb84c5b306b910989777e3d0d6fbd"
+  },
+  {
+    "file": "Real-ESRGAN-runtime-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/xinntao/Real-ESRGAN-ncnn-vulkan/37026f49824c5cf84062e7c6a5dd71445dcf610f/LICENSE",
+    "sha256": "5abb941454de437b0e90d78dcb72e3688f74e14bcd4e24393273cb5cd0e9c937"
+  },
+  {
+    "file": "Real-CUGAN-weights-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/bilibili/ailab/2799af78ef105b414cc4b796c67c8511acdcdf6f/Real-CUGAN/LICENSE",
+    "sha256": "8cad8cfdf94baaf23519061af913770e52476ddec2a311e9510582e7bed13cba"
+  },
+  {
+    "file": "Real-ESRGAN-project-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/xinntao/Real-ESRGAN/fa4c8a03ae3dbc9ea6ed471a6ab5da94ac15c2ea/LICENSE",
+    "sha256": "4a699ec4863d96a91fc265948a0c90033f7e8735d515524dcf3444736406e0c2"
+  },
+  {
+    "file": "cugan-ncnn-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/Tencent/ncnn/066614351391d309c96ae1e00c6fb1bd873b4949/LICENSE.txt",
+    "sha256": "6495f972a09ad7f64ccd953e79adba91a93d862edc7135e6d95210bbf4002a01"
+  },
+  {
+    "file": "cugan-libwebp-COPYING.txt",
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/b9d2f9cd3bec5b0970edeb11ea03c0a4ea06e332/COPYING",
+    "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+  },
+  {
+    "file": "cugan-libwebp-PATENTS.txt",
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/b9d2f9cd3bec5b0970edeb11ea03c0a4ea06e332/PATENTS",
+    "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+  },
+  {
+    "file": "cugan-glslang-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/KhronosGroup/glslang/86ff4bca1ddc7e2262f119c16e7228d0efb67610/LICENSE.txt",
+    "sha256": "adb783e734e906d1f46db5df29991dbde84bdb0ceab502ac2febb44fe3c2b5f4"
+  },
+  {
+    "file": "esrgan-ncnn-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/Tencent/ncnn/6125c9f47cd14b589de0521350668cf9d3d37e3c/LICENSE.txt",
+    "sha256": "6495f972a09ad7f64ccd953e79adba91a93d862edc7135e6d95210bbf4002a01"
+  },
+  {
+    "file": "esrgan-libwebp-COPYING.txt",
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/8ea81561d2fdd382da60f57958741a7c23a18eb6/COPYING",
+    "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+  },
+  {
+    "file": "esrgan-libwebp-PATENTS.txt",
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/8ea81561d2fdd382da60f57958741a7c23a18eb6/PATENTS",
+    "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+  },
+  {
+    "file": "esrgan-glslang-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/KhronosGroup/glslang/4afd69177258d0636f78d2c4efb823ab6382a187/LICENSE.txt",
+    "sha256": "130b2e98901db02a83e5e83c132b22d22d9279155feb53c49d6471b75af3c352"
+  },
+  {
+    "file": "win32dirent-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/nihui/realcugan-ncnn-vulkan/20220728/src/win32dirent.h",
+    "sha256": "ff797d5f2324db040973ecd452e6ce034c8054c13d5fba6f12317eff311ebb00"
+  },
+  {
+    "file": "stb-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/nihui/realcugan-ncnn-vulkan/20220728/src/stb_image.h",
+    "sha256": "7587efcca32db8f95bf5860dea6dfa4be410ee723e1964db3689c8ddf2a2e4a9"
+  },
+  {
+    "file": "Real-CUGAN-model-license-clarification.json",
+    "url": "https://api.github.com/repos/bilibili/ailab/issues/comments/1029590725",
+    "sha256": "ebf17684b492aa9f1fb053d0e9dc3e43e00e0a9993a7ec0f204de59c47f9a401"
+  },
+  {
+    "file": "dirent-MIT-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/tronkko/dirent/1.23.2/LICENSE",
+    "sha256": "a413acdd9d43cfa6761cc6599dff2dc43d90cf572f7a9d4d948b1fd40e727de7"
+  }
+]

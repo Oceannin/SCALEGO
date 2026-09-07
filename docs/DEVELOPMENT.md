@@ -14,9 +14,11 @@ npm run engine:install
 npm run dev
 ```
 
-`engine:install` скачивает официальные закреплённые архивы Real-ESRGAN, проверяет SHA-256 и готовит `runtime/`. Без моделей можно разрабатывать сжатие и обычное увеличение. Реальный AI требует Vulkan GPU и драйвера.
+`engine:install` скачивает закреплённые официальные executables и веса всех пяти моделей, проверяет архивные и файловые SHA256 и готовит `runtime/`. `engine:install:evaluation` сохранён для совместимости; в этом выпуске набор файлов совпадает. Состав определяется `electron/native-artifacts.json`, основание распространения описано в [MODEL_AUDIT](MODEL_AUDIT.md). Без моделей работают сжатие, Lanczos и Nearest. AI требует Vulkan GPU, драйвера и системного Microsoft Visual C++ Runtime x64.
 
 `npm run dev` использует Vite на `127.0.0.1:5178`. `npm run dev:web` показывает интерфейс отдельно; файловая обработка работает только в Electron.
+
+Для внешнего проверенного runtime можно задать абсолютный `SCALEGO_ENGINE_ROOT` перед запуском приложения (включая Portable). Например: `$env:SCALEGO_ENGINE_ROOT='F:\Programs\SCALEGO\runtime'`. Удаление переменной возвращает bundled runtime. Хеши остаются обязательными; произвольные бинарники не разрешаются.
 
 ## Проверки
 
@@ -26,9 +28,10 @@ npm test
 npm run build
 npm run smoke
 npm run smoke:queue
+npm run smoke:models
 ```
 
-Unit-тесты проверяют реальные кодеки, размеры, прозрачность, лимит веса, исходники, отмену и экспорт. AI-тест пропускается без установленного Windows engine. Для полного теста требуется работающий Vulkan GPU.
+Тесты проверяют routing, native failures, реальные кодеки, размеры, весь alpha-канал, лимит веса, исходники, отмену и экспорт. GPU-тесты явно пропускают отсутствующие модели. Для полного прогона установите evaluation runtime и задайте `$env:SCALEGO_REQUIRE_ALL_MODELS='1'` перед `npm test`: пропуск требуемой модели тогда считается ошибкой. `SCALEGO_TEST_ENGINE_ROOT` позволяет направить новые GPU-тесты на отдельный runtime. Lint-конфигурации в проекте нет; TypeScript проверяется через `typecheck`, CJS syntax — `node --check`.
 
 `smoke` и `smoke:queue` открывают настоящее окно с отдельным тестовым профилем. Данные остаются в игнорируемом `artifacts/`. В CI запускаются typecheck, кодековые тесты и frontend build; CI без Vulkan не подтверждает работу AI.
 
@@ -38,11 +41,17 @@ Unit-тесты проверяют реальные кодеки, размеры
 npm run dist:win
 npm run smoke:packaged
 npm run smoke:portable
+node scripts/models-smoke.cjs --packaged
+node scripts/verify-package.cjs
 ```
 
-Перед сборкой нужны модели в `runtime/`. Подготовка проверяет хеши движка, создаёт иконку и собирает лицензии. Закройте ранее запущенный Portable из `release/`: открытый EXE блокирует перезапись. Эти команды не публикуют GitHub Release.
+Перед сборкой выполните `engine:install`. Подготовка сверяет checked-in hashes и копирует только файлы из allowlist в `build/engine`, создаёт иконку и собирает лицензии. Случайные DLL из runtime не копируются. Пакеты находятся в `release/0.2.0-alpha.1/`. Закройте запущенный Portable из этой папки перед пересборкой. Эти команды не публикуют GitHub Release.
 
-`smoke:packaged` проверяет `release/win-unpacked/SCALEGO.exe`; `smoke:portable` — распаковку и запуск Portable, AI, экспорт и завершение. Установка NSIS — отдельная ручная проверка. Обновляйте `SHA256SUMS.txt` после окончательной сборки.
+`smoke:packaged` проверяет `win-unpacked/SCALEGO.exe` из output directory в package.json; `smoke:portable` — распаковку и запуск Portable, AI, экспорт и завершение. `models-smoke --packaged` проверяет каталог, запуск доступных моделей и рецепты. Для проверки внешнего runtime добавьте `--engine-root runtime`. `verify-package` проверяет полный состав native-файлов, hashes, notices, актуальность ASAR и создаёт `SHA256SUMS.txt`. Для короткой проверки выпуска: `node scripts/release-smoke.cjs` запускает Portable и по одному заданию Real-ESRGAN и Real-CUGAN; `node scripts/zoom-smoke.cjs release/0.2.0-alpha.1/win-unpacked/SCALEGO.exe` проверяет zoom без inference. Установка NSIS — отдельная ручная проверка.
+
+`npm run benchmark -- --gpu 0` создаёт reproducible JSON practical benchmark; `--gpu 1` выбирает другой адаптер. Подробности и расширение registry: [MULTI_ENGINE](MULTI_ENGINE.md), лицензии и source reproduction: [MODEL_AUDIT](MODEL_AUDIT.md), [jpegli feasibility](JPEGLI_AUDIT.md).
+
+Для GitHub `verify-package` также создаёт побайтовую копию установщика под стабильным именем `SCALEGO-<version>-Setup.exe` и записывает checksums для этого имени и Portable. Публикуйте именно эти два EXE вместе с `SHA256SUMS.txt`.
 
 ## Структура
 
@@ -59,4 +68,4 @@ npm run smoke:portable
 
 ## Выпуск
 
-Публикуйте из проверенного коммита. Сверьте версию в `package.json`, lockfile и метаданных рецепта (`electron/pipeline.cjs`); сценарий Portable также содержит имя версии. В первой alpha эти значения ещё не централизованы. Приложите Portable, установщик, контрольные суммы и release notes. Alpha должна оставаться prerelease. Лицензирование исходников и условия распространения комплектуемых зависимостей должны быть определены до публикации соответствующих файлов.
+Публикуйте из проверенного коммита. Текущая версия — `0.2.0-alpha.1`; package и lockfile обновляются согласованно. Рецепт и Portable smoke читают версию из package.json. Приложите Portable, установщик, контрольные суммы и release notes. Alpha остаётся prerelease. Основание распространения весов и принятое владельцем решение сохраняйте в licensing-документации.

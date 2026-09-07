@@ -1,4 +1,5 @@
 'use strict'
+const { resolveModel } = require('./models.cjs')
 const MODES = ['upscale', 'chain', 'compress']
 const FORMATS = ['png', 'jpeg', 'webp', 'avif']
 const METHODS = ['ai', 'lanczos', 'nearest']
@@ -13,7 +14,7 @@ function validateOptions(raw) {
   if (!Number.isInteger(raw.quality) || raw.quality < 1 || raw.quality > 100) throw new Error('Качество должно быть от 1 до 100.')
   if (typeof raw.lossless !== 'boolean') throw new Error('Некорректный режим сжатия.')
   if (typeof raw.background !== 'string' || !/^#[\da-f]{6}$/i.test(raw.background)) throw new Error('Укажите цвет подложки JPEG.')
-  if (raw.model !== undefined && !['illustration', 'photo'].includes(raw.model)) throw new Error('Неизвестная AI-модель.')
+  resolveModel(raw.model)
   const targetKB = raw.targetKB ?? 0
   if (!Number.isInteger(targetKB) || targetKB < 0 || targetKB > 200_000) throw new Error('Лимит размера должен быть от 0 до 200 000 КБ.')
   return { model: raw.model || 'illustration', mode: raw.mode, method: raw.method, scale: raw.scale, format: raw.mode === 'upscale' ? 'png' : raw.format,

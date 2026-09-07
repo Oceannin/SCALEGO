@@ -35,7 +35,7 @@
 - **Сравните перед сохранением.** Двигайте разделитель до/после, проверьте детали в масштабе 1:1 и прозрачные края на разных подложках.
 - **Подберите размер файла.** Настройте качество или задайте лимит в КБ. Если достичь лимита не получилось, вы увидите предупреждение.
 - **Обработайте целую подборку.** Выберите несколько изображений, запустите очередь и сохраните последние готовые результаты вместе. Прерванную очередь можно продолжить после запуска приложения.
-- **Выберите способ увеличения.** Real-ESRGAN для иллюстраций и фотографий; Lanczos для обычного увеличения; Nearest для пиксель-арта.
+- **Выберите результат увеличения.** «Естественно» или «Детально» для фото, «Чистые линии» или «Детально» для рисунков, «Быстро» для AI-предпросмотра. Lanczos — обычное увеличение, Nearest — пиксель-арт.
 - **Сохраните параметры.** Вместе с изображением экспортируется файл `.scalego`: формат, качество, размеры и контрольные суммы результата. Импорт рецептов пока не поддерживается.
 
 ## Скачать
@@ -44,11 +44,11 @@
 
 | Пакет | Как запустить |
 | :--- | :--- |
-| `SCALEGO-0.1.0-alpha.1-Portable.exe` | Скачать и открыть — установка не нужна |
-| `SCALEGO-0.1.0-alpha.1-Setup.exe` | Установить в выбранную папку |
+| `SCALEGO-0.2.0-alpha.1-Portable.exe` | Скачать и открыть — установка не нужна |
+| `SCALEGO-0.2.0-alpha.1-Setup.exe` | Установить в выбранную папку |
 | `SHA256SUMS.txt` | Проверить целостность скачанного файла |
 
-Windows x64. Модели AI включены; изображения обрабатываются без интернета. Для AI нужны совместимый Vulkan-драйвер и [Microsoft Visual C++ Runtime x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Установите Runtime с сайта Microsoft, если его ещё нет в системе. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
+Windows x64; обработка локальная. **Версия 0.2.0-alpha.1 включает все пять AI-режимов:** Natural, Photo Detailed, Clean, Illustration Detailed и Fast. См. [аудит моделей](docs/MODEL_AUDIT.md). Для AI нужны совместимый Vulkan-драйвер и [Microsoft Visual C++ Runtime x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Установите Runtime с сайта Microsoft, если его ещё нет в системе. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
 
 > **Ранняя alpha.** Windows-файлы не подписаны цифровой подписью. Перед запуском сверяйте источник и контрольную сумму. Совместимость проверена на одной Windows 11 машине; работа со всеми видеокартами не заявляется. [Требования и ограничения](docs/USER_GUIDE.md#требования-и-ограничения).
 
@@ -61,6 +61,18 @@ Portable не требует установки, но хранит рабочу�
 3. Укажите масштаб, формат и качество. Для первого опыта со сжатием начните с качества **85**.
 4. Нажмите **«Обработать»**. Сравните изображение и фактический вес.
 5. Нажмите **«Сохранить»** и выберите папку.
+
+### Какой AI-результат выбрать?
+
+| Результат | Когда полезен |
+| --- | --- |
+| **Фото · Естественно** (Natural) | Более мягкая обработка фото, меньше выраженной дорисовки текстур |
+| **Фото · Детально** (Detailed) | Более выраженные детали; проверяйте текстуры и лица |
+| **Иллюстрация · Чистые линии** (Clean) | Аниме, VTuber-графика, рисунки и большие однотонные области; шум сглаживается |
+| **Иллюстрация · Детально** (Detailed) | Детализация рисунка с более сильной резкостью |
+| **Быстро** (Fast) | Быстрый AI-предпросмотр и графика; на фото возможности ограничены |
+
+Доступность зависит от установленных моделей. Их имена и нативные масштабы находятся в **«О модели»**. Для Natural и Detailed обработка всегда 4×, а запросы 2×/3× завершаются качественным уменьшением. Прозрачность масштабируется отдельно.
 
 ### Какой формат выбрать?
 
@@ -81,12 +93,12 @@ Portable не требует установки, но хранит рабочу�
 
 ## Для тех, кто хочет заглянуть внутрь
 
-SCALEGO построен на Electron, React, TypeScript, Sharp/libvips и Real-ESRGAN-ncnn-vulkan. Собственные интерфейс и очередь; готовые кодеки и модели работают локально.
+SCALEGO построен на Electron, React, TypeScript, Sharp/libvips и локальных Vulkan-движках Real-ESRGAN и Real-CUGAN. Собственные интерфейс и очередь; готовые кодеки и модели работают локально.
 
 [Сборка из исходников](docs/DEVELOPMENT.md) · [Архитектура](docs/APPLICATION.md) · [Проверки](docs/VALIDATION.md) · [Участие в разработке](CONTRIBUTING.md) · [Изменения](CHANGELOG.md)
 
 ## Авторы и компоненты
 
-SCALEGO — проект [Oceannin](https://github.com/Oceannin). Спасибо авторам [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN), [ncnn](https://github.com/Tencent/ncnn), [Sharp](https://github.com/lovell/sharp), [libvips](https://github.com/libvips/libvips), [Electron](https://github.com/electron/electron), [React](https://github.com/facebook/react) и [Lucide](https://github.com/lucide-icons/lucide).
+SCALEGO — проект [Oceannin](https://github.com/Oceannin). Спасибо авторам [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN), [Real-CUGAN](https://github.com/bilibili/ailab/tree/main/Real-CUGAN), [Real-CUGAN ncnn](https://github.com/nihui/realcugan-ncnn-vulkan), [ncnn](https://github.com/Tencent/ncnn), [Sharp](https://github.com/lovell/sharp), [libvips](https://github.com/libvips/libvips), [Electron](https://github.com/electron/electron), [React](https://github.com/facebook/react) и [Lucide](https://github.com/lucide-icons/lucide).
 
 Собственный код SCALEGO распространяется по лицензии [MIT](LICENSE). Лицензии сторонних компонентов и моделей сохраняются отдельно: [Third-party notices](THIRD_PARTY_NOTICES.md).
