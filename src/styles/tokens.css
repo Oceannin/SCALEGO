@@ -1,21 +1,48 @@
 :root {
   color-scheme: dark;
+  /* Local fonts support Cyrillic, Latin and technical values. */
   --font-ui: 'Segoe UI Variable', 'Segoe UI', Arial, sans-serif;
   --font-mono: 'Cascadia Mono', Consolas, monospace;
-  --canvas: #0d0f12; --panel: #111419; --surface: #171a20; --raised: #1b1f25; --sunken: #0a0c0f;
-  --text: #f1f2f3; --secondary: #bec2c8; --muted: #9299a4; --border: #30353d; --divider: #24282e;
-  --accent: #f4511e; --accent-hover: #ff6535; --on-accent: #111419; --accent-soft: #2e1b17;
-  --focus: #75b9ff; --success: #79d39e; --error: #ff9691; --error-bg: #311e21;
-  --check-a: #171a1e; --check-b: #1e2227; --shadow: 0 10px 36px #0004;
-  --radius-sm: 4px; --radius: 7px; --radius-lg: 10px;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px;
-  --type-small: 12px; --type-body: 14px; --type-heading: 18px; --duration: 140ms;
+  --type-small: 12px; --type-body: 13px; --type-heading: 18px;
+
+  /* 0: neutral canvas. 1: readable, opaque structural surfaces. */
+  --canvas: #101112; --panel: #191b1d; --surface: #222426; --raised: #2b2e31; --sunken: #141618;
+  --border: #3d4145; --divider: #2d3033;
+  --text: #f3f3f1; --secondary: #c7c9ca; --muted: #999fa4;
+
+  /* 2: selective optical controls. Blur is local and static. */
+  --glass: #25282be8; --glass-strong: #34383cee;
+  --glass-border: #737b8363; --glass-highlight: #ffffff21;
+  --glass-fill: linear-gradient(165deg, #ffffff0c, #ffffff00 55%);
+
+  /* Semantic orange stays independent of silver decoration. */
+  --accent: #ff7849; --accent-hover: #ff916a; --on-accent: #251309; --accent-soft: #3c2921;
+  --focus: #8dc9ff; --success: #92d4ad; --warning: #e8c080; --error: #ffaca7; --error-bg: #3c2528;
+  --shadow-low: 0 2px 6px #0003, inset 0 1px 0 var(--glass-highlight);
+  --shadow-high: 0 8px 24px #0005, inset 0 1px 0 var(--glass-highlight);
+  --shadow: 0 4px 20px #0004;
+  --metal-edge: linear-gradient(125deg, #fbdfcd, #998b82 20%, #f9eee6 35%, #776962 58%, #d1b8a2 72%, #f5d0b0);
+
+  /* Background tokens never filter image pixels. */
+  --check-a: #1e2022; --check-b: #252729;
+  --radius-sm: 6px; --radius: 9px; --radius-lg: 14px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px;
+  --duration: 180ms; --ease-material: cubic-bezier(.2,.8,.2,1);
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --canvas: #f3f2ef; --panel: #fbfaf7; --surface: #f0efeb; --raised: #ffffff; --sunken: #e9e7e2;
-  --text: #222326; --secondary: #505257; --muted: #666970; --border: #ccc8c0; --divider: #e0ddd6;
-  --accent: #e5481c; --accent-hover: #f15b30; --on-accent: #111419; --accent-soft: #f8e7df;
-  --focus: #096fdd; --success: #237748; --error: #a62c28; --error-bg: #fff0ed;
-  --check-a: #eceae5; --check-b: #dfddd8; --shadow: 0 10px 36px #30282012;
+  /* Milky glass with warm ceramic structure. */
+  --canvas: #e7e7e3; --panel: #f4f4f0; --surface: #eaece8; --raised: #ffffff; --sunken: #e4e6e1;
+  --border: #b9beb9; --divider: #d6d9d3;
+  --text: #252925; --secondary: #4c544f; --muted: #626b65;
+  --glass: #fafcf5ed; --glass-strong: #fffffff5;
+  --glass-border: #9fa89b91; --glass-highlight: #ffffffea;
+  --glass-fill: linear-gradient(165deg, #fff9, #fff0 60%);
+  --accent: #f26d3d; --accent-hover: #fa8050; --on-accent: #271409; --accent-soft: #f7e0d4;
+  --focus: #1767af; --success: #276b43; --warning: #8c5d13; --error: #a3322c; --error-bg: #ffebe5;
+  --shadow-low: 0 2px 6px #29332312, inset 0 1px 0 var(--glass-highlight);
+  --shadow-high: 0 8px 24px #2933231c, inset 0 1px 0 var(--glass-highlight);
+  --shadow: 0 4px 20px #2933231a;
+  --check-a: #dfe1dd; --check-b: #d2d5d0;
 }

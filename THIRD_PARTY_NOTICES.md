@@ -7,6 +7,7 @@ SCALEGO uses existing open-source inference and image codecs. It does not contai
 | Electron / Chromium / Node.js | Desktop runtime | MIT and bundled notices; `LICENSE.electron.txt` and `LICENSES.chromium.html` beside the application |
 | React, React DOM, Scheduler | Interface | MIT — https://github.com/facebook/react |
 | Lucide | Interface icons | ISC — https://github.com/lucide-icons/lucide |
+| Metal FX 1.0.4 | Optional local liquid-metal rim on the processing action | MIT, Copyright (c) 2026 Jakub Antalik — https://github.com/Jakubantalik/metal-fx |
 | Sharp | Image decoding, resizing, encoding | Apache-2.0 — https://github.com/lovell/sharp |
 | libvips and codec libraries | Native image processing | libvips is LGPL-2.1-or-later; Sharp's binary stack elects LGPLv3 where applicable. Attribution, license texts and exact Windows component versions are included in `resources/licenses/native-image-libraries/` — https://github.com/lovell/sharp-libvips/blob/v1.3.3/THIRD-PARTY-NOTICES.md |
 | Real-ESRGAN-ncnn-vulkan | Separate native inference executable, v0.2.0 Windows | MIT — https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan |
@@ -28,3 +29,29 @@ Weight sources: [RealESRNet, official 20210901 Windows distribution (v0.2.2.4)](
 Full inference notices and model-license evidence are retained in `third-party/inference/` and copied into packages. Separate source, executable, weights, embedded-library, commercial-redistribution and reproduction findings are recorded in [the model audit](docs/MODEL_AUDIT.md). Real-CUGAN Pro/nose and extra denoise variants, jpegli, Python and PyTorch are not distributed.
 
 Redistribution must preserve these notices and the accompanying license texts. Microsoft OpenMP is not redistributed in SCALEGO packages: users install the official runtime separately. The original upstream archives contain its DLL; the installer does not copy it and the packaging allowlist excludes it. See [Microsoft redistribution terms](https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution) for that component. SCALEGO's original code is licensed under the [MIT License](LICENSE). Third-party components and models retain their respective licenses.
+
+## Metal FX 1.0.4 — experimental renderer branch
+
+Bundled locally from the pinned npm package without modifications. No CDN, remote assets or runtime network requests. Aave Glass informed the material and interaction research; no Aave implementation code is included.
+
+MIT License
+
+Copyright (c) 2026 Jakub Antalik
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
