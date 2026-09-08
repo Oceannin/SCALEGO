@@ -77,6 +77,7 @@ function installFixture(fixture) {
     show(kind) {
       const next = { assets: clone(fixture.assets), jobs: [], busy: false, outputDirectory: snapshot.outputDirectory }
       if (kind === 'empty') next.assets = []
+      if (kind === 'opaque') next.assets = [{ ...fixture.assets[0], id: 'opaque-fixture', alpha: false }]
       if (kind === 'result') next.jobs = fixture.assets.map((asset, i) => jobFor(asset, i))
       if (kind === 'interrupted') next.jobs = [jobFor(fixture.assets[0], 0), jobFor(fixture.assets[1], 1, 'interrupted')]
       if (kind === 'error') next.jobs = [{ ...jobFor(fixture.assets[0], 0, 'error'), stage: 'Ошибка', error: 'Не удалось обработать изображение. Проверьте выбранную модель и повторите запуск.' }]
@@ -226,6 +227,61 @@ async function theme(page, value) {
   const current = await page.evaluate(() => document.documentElement.dataset.theme)
   if (current !== value) await page.getByRole('button', { name: value === 'light' ? 'Светлая тема' : 'Тёмная тема', exact: true }).click()
   await settle(page)
+}
+
+async function checkOptics(page, layouts) {
+  await page.setViewportSize({ width: 1600, height: 1000 })
+  await theme(page, 'dark')
+  await page.evaluate(() => window.__designFixture.show('opaque'))
+  await page.waitForFunction(() => document.querySelector('.viewport')?.classList.contains('bg-neutral'))
+  const closeNotice = page.getByRole('button', { name: 'Закрыть сообщение', exact: true })
+  if (await closeNotice.count()) await closeNotice.click()
+  await capture(page, 'opaque-neutral-dark-1600x1000', layouts)
+  await page.getByRole('button', { name: 'Прозрачность подложка', exact: true }).click()
+  assert.ok(await page.locator('.viewport.bg-checker').count(), 'Explicit background choice overrides contextual default')
+  await page.evaluate(() => window.__designFixture.show('result'))
+  await page.waitForFunction(() => document.querySelector('.viewport')?.classList.contains('bg-checker'))
+  await page.getByRole('button', { name: 'Сравнить', exact: true }).click()
+  const range = page.getByRole('slider', { name: 'Положение разделителя сравнения', exact: true })
+  await range.press('Home')
+  for (let i = 0; i < 55; i++) await range.press('ArrowRight')
+  await page.locator('.app-header').click({ position: { x: 350, y: 20 } })
+  const handle = page.locator('.comparison-handle')
+  const handleBox = await handle.boundingBox()
+  const image = page.locator('.image-comparison')
+  const imageBox = await image.boundingBox()
+  const before = await image.screenshot({ animations: 'disabled' })
+  const bypass = await page.addStyleTag({ content: '.compare-glass .optical-refraction { filter: none !important; }' })
+  const after = await image.screenshot({ animations: 'disabled' })
+  const [originalPixels, bypassPixels] = await Promise.all([sharp(before).ensureAlpha().raw().toBuffer({ resolveWithObject: true }), sharp(after).ensureAlpha().raw().toBuffer({ resolveWithObject: true })])
+  let changedInside = 0, changedOutside = 0
+  for (let i = 0; i < originalPixels.data.length; i += 4) {
+    const changed = [0, 1, 2].some(channel => Math.abs(originalPixels.data[i + channel] - bypassPixels.data[i + channel]) > 3)
+    if (!changed) continue
+    const x = i / 4 % originalPixels.info.width, y = Math.floor(i / 4 / originalPixels.info.width)
+    if (x >= handleBox.x - imageBox.x - 2 && x <= handleBox.x - imageBox.x + handleBox.width + 2 && y >= handleBox.y - imageBox.y - 2 && y <= handleBox.y - imageBox.y + handleBox.height + 2) changedInside++
+    else changedOutside++
+  }
+  assert.ok(changedInside > 20, 'Lens must visibly refract the sampled image, not merely add CSS chrome')
+  assert.equal(changedOutside, 0, 'Refraction must not alter pixels outside the handle')
+  await bypass.evaluate(element => element.remove())
+  await handle.screenshot({ path: path.join(artifacts, 'optical-handle-detail.png') })
+  const restingTransform = await handle.evaluate(element => getComputedStyle(element).transform)
+  const mapBeforeDrag = await page.locator('.compare-glass feImage').getAttribute('href')
+  await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
+  await page.mouse.down()
+  assert.notEqual(await handle.evaluate(element => getComputedStyle(element).transform), restingTransform, 'Pressed lens should squish')
+  await page.mouse.move(handleBox.x + handleBox.width / 2 + 8, handleBox.y + handleBox.height / 2)
+  assert.equal(await page.locator('.compare-glass feImage').getAttribute('href'), mapBeforeDrag, 'Moving lens must reuse its displacement map')
+  await page.screenshot({ path: path.join(artifacts, 'optical-handle-drag-dark.png'), animations: 'disabled' })
+  await page.mouse.up()
+  const indicator = page.locator('.segments > .optical-lens')
+  const initialTransform = await indicator.evaluate(element => getComputedStyle(element).transform)
+  await page.getByRole('button', { name: '3×', exact: true }).click()
+  const nextTransform = await indicator.evaluate(element => getComputedStyle(element).transform)
+  assert.notEqual(nextTransform, initialTransform, 'Scale lens must move between segments')
+  await page.getByRole('button', { name: '2×', exact: true }).click()
+  return { changedInside, changedOutside }
 }
 
 async function main() {
@@ -408,7 +464,9 @@ async function main() {
     for (const method of ['import', 'start', 'cancel', 'directory', 'reveal', 'export', 'exportAll', 'resume']) assert.ok(recorded.includes(method), `${method} was not dispatched`)
     report.checks.push('output folder, reveal, single and batch export dispatch, interrupted/resume, persistent error semantics')
     assert.equal(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches), true)
-    report.checks.push('all interactions performed with reduced motion enabled')
+    report.checks.push('main workflow interactions performed with reduced motion enabled')
+    report.opticalPixels = await checkOptics(page, layouts)
+    report.checks.push('contextual neutral/checkerboard backgrounds with manual override; moving scale lens; real refraction changes limited to the compare handle')
     await checkDecoration(browser, url, fixture, report)
     assert.deepEqual(requests, [], 'Renderer made external network requests')
     assert.deepEqual(errors, [], 'Renderer raised uncaught exceptions')

@@ -3,15 +3,17 @@
   /* Local fonts support Cyrillic, Latin and technical values. */
   --font-ui: 'Segoe UI Variable', 'Segoe UI', Arial, sans-serif;
   --font-mono: 'Cascadia Mono', Consolas, monospace;
-  --type-small: 12px; --type-body: 13px; --type-heading: 18px;
+  --type-small: 13px; --type-body: 14px; --type-heading: 18px;
 
   /* 0: neutral canvas. 1: readable, opaque structural surfaces. */
-  --canvas: #101112; --panel: #191b1d; --surface: #222426; --raised: #2b2e31; --sunken: #141618;
+  --canvas: #111314; --panel: #17191b; --surface: #24282a; --raised: #303537; --sunken: #111416;
+  --lens-body: #bfdbeb1c; --lens-environment: #53707c4a;
+  --lens-shadow: 0 4px 9px #0004; --lens-lower-edge: #0005;
   --border: #3d4145; --divider: #2d3033;
-  --text: #f3f3f1; --secondary: #c7c9ca; --muted: #999fa4;
+  --text: #f3f3f1; --secondary: #d3d5d6; --muted: #adb3b7;
 
   /* 2: selective optical controls. Blur is local and static. */
-  --glass: #25282be8; --glass-strong: #34383cee;
+  --glass: #263039c9; --glass-strong: #343e48ba;
   --glass-border: #737b8363; --glass-highlight: #ffffff21;
   --glass-fill: linear-gradient(165deg, #ffffff0c, #ffffff00 55%);
 
@@ -35,8 +37,10 @@
   /* Milky glass with warm ceramic structure. */
   --canvas: #e7e7e3; --panel: #f4f4f0; --surface: #eaece8; --raised: #ffffff; --sunken: #e4e6e1;
   --border: #b9beb9; --divider: #d6d9d3;
-  --text: #252925; --secondary: #4c544f; --muted: #626b65;
-  --glass: #fafcf5ed; --glass-strong: #fffffff5;
+  --text: #252925; --secondary: #414a44; --muted: #556059;
+  --lens-body: #ffffffe0; --lens-environment: #f7fafba0;
+  --lens-shadow: 0 3px 7px #233a431f; --lens-lower-edge: #334b591f;
+  --glass: #fafcf5bd; --glass-strong: #ffffffc9;
   --glass-border: #9fa89b91; --glass-highlight: #ffffffea;
   --glass-fill: linear-gradient(165deg, #fff9, #fff0 60%);
   --accent: #f26d3d; --accent-hover: #fa8050; --on-accent: #271409; --accent-soft: #f7e0d4;

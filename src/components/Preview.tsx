@@ -2,18 +2,22 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ArrowLeftRight, ArrowRight, ImagePlus, Scan, ZoomIn, ZoomOut, Move, SplitSquareHorizontal } from 'lucide-react'
 import type { Asset, Job } from '../types'
 import { bytes } from '../types'
+import { OpticalLens } from './OpticalLens'
+import type { CSSProperties } from 'react'
 import '../styles/preview.css'
 
 interface Props { asset?: Asset; job?: Job; importFiles: () => void; importing: boolean; desktop: boolean }
 const views = [['original', 'Оригинал'], ['split', 'Сравнить'], ['result', 'Результат']] as const
-const backgrounds = [['checker', 'Прозрачность'], ['white', 'Белая'], ['black', 'Чёрная'], ['sand', 'Песочная']] as const
+const backgrounds = [['checker', 'Прозрачность'], ['white', 'Белая'], ['black', 'Чёрная'], ['neutral', 'Нейтральная'], ['sand', 'Песочная']] as const
 const canvasGutter = 40
+const verticalGutter = 112
 
 export function Preview({ asset, job, importFiles, importing, desktop }: Props) {
   const [view, setView] = useState<'original' | 'split' | 'result'>('split')
   const [position, setPosition] = useState(50)
   const [zoom, setZoom] = useState<number | null>(null)
-  const [background, setBackground] = useState('checker')
+  const [backdrop, setBackdrop] = useState<{ assetId: string; value: string }>()
+  const background = backdrop?.assetId === asset?.id ? backdrop?.value : asset?.alpha ? 'checker' : 'neutral'
   const [area, setArea] = useState({ width: 800, height: 500 })
   const [panning, setPanning] = useState(false)
   const viewport = useRef<HTMLDivElement>(null)
@@ -38,10 +42,11 @@ export function Preview({ asset, job, importFiles, importing, desktop }: Props) 
   }, [asset?.id])
 
   const width = result?.width || asset?.width || 1, height = result?.height || asset?.height || 1
-  const fit = Math.min((area.width - canvasGutter) / width, (area.height - canvasGutter) / height, 1)
+  const fit = Math.min((area.width - canvasGutter) / width, (area.height - verticalGutter) / height, 1)
   const factor = zoom ?? Math.max(0.01, fit)
   const minZoom = Math.min(0.05, Math.max(0.01, fit))
   const changeZoom = (direction: number) => setZoom(Math.max(minZoom, Math.min(4, factor * (direction > 0 ? 1.5 : 1 / 1.5))))
+  const sampleStyle = (url: string): CSSProperties => ({ backgroundImage: `url("${url}")`, backgroundSize: `${width * factor}px ${height * factor}px`, backgroundPosition: `${20 - width * factor * position / 100}px ${22 - height * factor / 2}px` })
   const stopPanning = () => { drag.current = null; setPanning(false) }
 
   useEffect(() => {
@@ -88,13 +93,15 @@ export function Preview({ asset, job, importFiles, importing, desktop }: Props) 
     </div> : <>
       <div className="preview-stage">
         <div className="preview-toolbar">
-          <div className="view-switch" role="group" aria-label="Режим просмотра">
+          <div className="view-switch optical-rail" role="group" aria-label="Режим просмотра" style={{ '--selected': views.findIndex(([value]) => value === activeView) } as CSSProperties}>
+            <OpticalLens/>
             {views.map(([value, label]) => <button key={value} disabled={value !== 'original' && !result} aria-pressed={activeView === value} onClick={() => setView(value)}>
               {value === 'split' && <SplitSquareHorizontal size={13}/>}<span>{label}</span>
             </button>)}
           </div>
-          <div className="background-switch" role="group" aria-label="Подложка">
-            {backgrounds.map(([value, label]) => <button key={value} className={`swatch swatch-${value}`} title={`${label} подложка`} aria-label={`${label} подложка`} aria-pressed={background === value} onClick={() => setBackground(value)}/>)}
+          <div className="background-switch optical-rail" role="group" aria-label="Подложка" style={{ '--selected': backgrounds.findIndex(([value]) => value === background), '--segments': backgrounds.length } as CSSProperties}>
+            <OpticalLens/>
+            {backgrounds.map(([value, label]) => <button key={value} className={`swatch swatch-${value}`} title={`${label} подложка`} aria-label={`${label} подложка`} aria-pressed={background === value} onClick={() => setBackdrop({ assetId: asset.id, value })}/>)}
           </div>
         </div>
         <div ref={viewport} className={`viewport bg-${background}${panning ? ' is-panning' : ''}`} aria-label="Изображение. Колёсико — масштаб; перетаскивание — перемещение."
@@ -118,12 +125,12 @@ export function Preview({ asset, job, importFiles, importing, desktop }: Props) 
             stopPanning()
           }}
           onPointerCancel={stopPanning} onLostPointerCapture={stopPanning}>
-          <div className="image-space" style={{ minWidth: width * factor + canvasGutter, minHeight: height * factor + canvasGutter }}>
+          <div className="image-space" style={{ minWidth: width * factor + canvasGutter, minHeight: height * factor + verticalGutter }}>
             <div ref={comparison} className="image-comparison" style={{ width: width * factor, height: height * factor }}>
               <img draggable={false} src={activeView === 'result' && result ? result.url : asset.url} alt={activeView === 'result' ? 'Обработанное изображение' : 'Исходное изображение'}/>
               {result && activeView === 'split' && <>
                 <img draggable={false} className="comparison-result" style={{ clipPath: `inset(0 0 0 ${position}%)` }} src={result.url} alt="Результат справа от разделителя"/>
-                <div className="comparison-line" style={{ left: `${position}%` }} aria-hidden="true"><span><ArrowLeftRight size={17}/></span></div>
+                <div className="comparison-line" style={{ left: `${position}%` }} aria-hidden="true"><span className="comparison-handle"><OpticalLens className="compare-glass"><span className="lens-sample lens-original" style={sampleStyle(asset.url)}/><span className="lens-sample lens-result" style={sampleStyle(result.url)}/></OpticalLens><ArrowLeftRight size={17}/></span></div>
                 <input className="comparison-range" aria-label="Положение разделителя сравнения" aria-valuetext={`${position}% оригинала, ${100 - position}% результата`} type="range" min="0" max="100" value={position} onChange={event => setPosition(Number(event.target.value))}/>
               </>}
             </div>
@@ -132,6 +139,7 @@ export function Preview({ asset, job, importFiles, importing, desktop }: Props) 
         <div className="preview-bottom">
           <span className="pan-hint" title="Колёсико — масштаб. Перетаскивание — перемещение. В режиме сравнения тяните ручку разделителя."><Move size={13}/><span>Тяните для перемещения</span></span>
           <div className="zoom-dock" role="group" aria-label="Масштаб изображения">
+            <OpticalLens className={`zoom-lens ${zoom === 1 ? 'actual' : ''}`}/>
             <button className="icon-button" title="Уменьшить масштаб" aria-label="Уменьшить масштаб" disabled={factor <= minZoom} onClick={() => changeZoom(-1)}><ZoomOut size={15}/></button>
             <button onClick={() => setZoom(null)} className="zoom-value" title="Вписать изображение в область просмотра" aria-label={`Вписать изображение. Текущий масштаб ${Math.round(factor * 100)}%`} aria-pressed={zoom === null}>{zoom === null ? 'Вписать' : `${Math.round(zoom * 100)}%`}</button>
             <button className="icon-button" title="Увеличить масштаб" aria-label="Увеличить масштаб" disabled={factor >= 4} onClick={() => changeZoom(1)}><ZoomIn size={15}/></button>
@@ -144,7 +152,7 @@ export function Preview({ asset, job, importFiles, importing, desktop }: Props) 
         <div className="result-metric"><span className="eyebrow">ОРИГИНАЛ</span><strong>{asset.width} × {asset.height}</strong><small>{bytes(asset.bytes)}</small></div>
         <ArrowRight className="result-arrow" size={14} aria-hidden="true"/>
         <div className="result-metric"><span className="eyebrow">{result ? 'РЕЗУЛЬТАТ' : 'ПОСЛЕ ОБРАБОТКИ'}</span><strong>{result ? `${result.width} × ${result.height}` : job?.status === 'running' ? 'Обработка…' : 'Готов к запуску'}</strong><small>{result ? `${bytes(result.bytes)} · ${result.format.toUpperCase()}` : 'Параметры справа'}</small></div>
-        {result && <div className={`size-delta ${result.bytes < asset.bytes ? 'saving' : ''}`} title="Изменение размера файла относительно оригинала"><strong>{result.bytes < asset.bytes ? '−' : '+'}{Math.abs((result.bytes / asset.bytes - 1) * 100).toFixed(0)}%</strong><small>размер файла</small></div>}
+        {result && <div className={`size-delta ${result.bytes < asset.bytes ? 'saving' : ''}`} title="Изменение размера файла относительно оригинала"><strong>{result.bytes < asset.bytes ? '↓ ' : '↑ '}{Math.abs((result.bytes / asset.bytes - 1) * 100).toFixed(0)}%</strong><small>размер файла</small></div>}
       </div>
     </>}
   </main>

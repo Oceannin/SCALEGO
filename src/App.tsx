@@ -51,7 +51,7 @@ export default function App() {
   const resultMessage = stale ? 'Параметры изменены — на экране предыдущий результат.' : job?.result?.warnings.join(' ') || 'Результат проверен: размеры и формат соответствуют параметрам.'
   const currentError = latest?.error ? `${latest.id}:${latest.error}` : undefined
   return <div className="app" onDragOver={event => { event.preventDefault(); if (desktop && !state.busy) setDragging(true) }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false) }} onDrop={event => { event.preventDefault(); setDragging(false); if (!desktop || state.busy) return; const files = Array.from(event.dataTransfer.files); void action(async () => { setImporting(true); try { const result = await window.scalego!.drop(files); if (result.errors.length) setNotice({ text: result.errors.join('\n'), error: true }) } finally { setImporting(false) } }) }}>
-    <header className="app-header"><div className="brand"><span className="brand-mark"><ArrowUpRight size={23} strokeWidth={2.5}/></span><span>SCALE<span className="brand-go">GO</span></span><span className="version">α 0.2</span></div><span className="header-description">Мастерская изображений</span><div className="header-actions"><span className="local-label"><span className="status-dot ready"/>ЛОКАЛЬНО</span><button className="icon-button" aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>}</button><button className="button subtle" disabled={!desktop || importing || state.busy} onClick={importFiles}><Plus size={16}/>Добавить</button></div></header>
+    <header className="app-header"><div className="brand"><span className="brand-mark"><ArrowUpRight size={23} strokeWidth={2.5}/></span><span>SCALE<span className="brand-go">GO</span></span><span className="version">α 0.2</span></div><span className="header-description">Мастерская изображений</span><div className="header-actions"><button className="icon-button" aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>}</button><button className="button subtle" disabled={!desktop || importing || state.busy} onClick={importFiles}><Plus size={16}/>Добавить</button></div></header>
     <div className="workspace">
       <aside className="library" aria-label="Исходные изображения"><div className="panel-heading"><h2>Изображения</h2><span className="count">{state.assets.length.toString().padStart(2, '0')}</span></div>
         {state.assets.length > 0 && <div className="selection-row"><label><input type="checkbox" ref={element => { if (element) element.indeterminate = selected.length > 0 && selected.length < state.assets.length }} disabled={state.busy} checked={selected.length === state.assets.length} onChange={e => setSelected(e.target.checked ? state.assets.map(a => a.id) : [])}/>Выбрать все</label><span>{selected.length}</span></div>}
@@ -75,17 +75,17 @@ export default function App() {
       </div>}
     </div>
     <footer className="action-bar">
-      <div className="pipeline-label"><span className="eyebrow">МАРШРУТ</span><span>
+      <div className="pipeline-label"><span><strong>{selected.length} изображ.</strong><span aria-hidden="true">·</span>
         {options.mode !== 'compress' && <>Увеличение <strong>{options.scale}×</strong></>}
         {options.mode === 'chain' && <ChevronRight size={14}/>}
         {options.mode !== 'upscale' && <>Сжатие <strong>{options.format.toUpperCase()}</strong></>}
       </span></div>
       <div className="queue-summary" aria-live="polite">
         {state.busy ? <><LoaderCircle className="spin" size={16}/><span>{running?.stage || 'Завершение…'} <strong>{running?.percent || 0}%</strong></span></>
-          : <span>{state.assets.length ? `Выбрано: ${selected.length} · Готово: ${done.length}` : 'Добавьте изображения, чтобы начать'}</span>}
+          : <span>{state.assets.length ? done.length ? `Готово: ${done.length}` : 'Готово к запуску' : 'Добавьте изображения, чтобы начать'}</span>}
       </div>
       {job?.result && !state.busy && <details key={resultMessage} className="result-feedback" data-warning={resultWarning}>
-        <summary aria-label={resultMessage}>{resultWarning ? <AlertCircle size={14}/> : <Check size={14}/>}<span>{stale ? 'Предыдущий результат' : resultWarning ? 'Примечание' : 'Проверен'}</span></summary>
+        <summary aria-label={resultMessage}>{resultWarning ? <AlertCircle size={14}/> : <Check size={14}/>}<span>{stale ? 'Предыдущий результат' : resultWarning ? 'Примечание' : ''}</span></summary>
         <p>{resultMessage}</p>
       </details>}
       <div className="run-actions">

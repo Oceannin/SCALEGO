@@ -1,6 +1,8 @@
 import { ArrowUpRight, ArrowRight, Minimize2, FolderOpen, Layers, Cpu, Info, ChevronDown } from 'lucide-react'
 import type { Options, Engine, Asset } from '../types'
 import '../styles/inspector.css'
+import { OpticalLens } from './OpticalLens'
+import type { CSSProperties } from 'react'
 
 interface Props {
   options: Options
@@ -32,8 +34,8 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
       <h2>Обработка</h2>
       <details className="engine-chip">
         <summary aria-label={`${engineLabel}. Состояние AI-движка и моделей`}>
-          <Cpu size={13} aria-hidden="true"/>
-          <span role="status">{engineLabel}</span>
+          <span className="ai-signature"><Cpu size={17} aria-hidden="true"/></span>
+          <span className="ai-label" role="status"><strong>AI</strong><small>{engine.available ? `${availableModels} локальных моделей` : 'Недоступен'}</small></span>
           <ChevronDown size={12} aria-hidden="true"/>
         </summary>
         <div className="engine-detail">
@@ -51,7 +53,7 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
       <fieldset disabled={busy} className="mode-field">
         <legend>Что сделать с изображением</legend>
         <div className="mode-options" data-mode={options.mode}>
-          <span className="mode-lens" aria-hidden="true"/>
+          <OpticalLens className="mode-lens"/>
           {processingModes.map(([value, label, help, Icon]) => <label className={`mode-option ${options.mode === value ? 'selected' : ''}`} key={value}>
             <Icon size={16} aria-hidden="true"/>
             <span><strong>{label}</strong><small>{help}</small></span>
@@ -64,7 +66,7 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
         <h3 id="upscale-heading"><span className="step" aria-label="Этап 1">01</span>Увеличение</h3>
         <fieldset disabled={busy}>
           <legend>Масштаб</legend>
-          <div className="segments">{[2, 3, 4].map(scale => <button type="button" aria-pressed={options.scale === scale} key={scale} onClick={() => update({ scale })}>{scale}×</button>)}</div>
+          <div className="segments optical-rail" style={{ '--selected': options.scale - 2 } as CSSProperties}><OpticalLens/>{[2, 3, 4].map(scale => <button type="button" aria-pressed={options.scale === scale} key={scale} onClick={() => update({ scale })}>{scale}×</button>)}</div>
         </fieldset>
         <label className="field">Метод
           <select disabled={busy} value={options.method} onChange={e => update({ method: e.target.value as Options['method'] })}>
@@ -95,14 +97,14 @@ export function Inspector({ options, setOptions, engine, asset, busy, outputDire
         <h3 id="compression-heading"><span className="step" aria-label={`Этап ${upscale ? 2 : 1}`}>{upscale ? '02' : '01'}</span>Сжатие</h3>
         <fieldset disabled={busy}>
           <legend>Формат</legend>
-          <div className="format-row">{(['webp', 'png', 'jpeg', 'avif'] as const).map(format => <button type="button" aria-pressed={options.format === format} key={format} onClick={() => update({ format, lossless: format === 'jpeg' ? false : options.lossless })}>{format === 'jpeg' ? 'JPG' : format.toUpperCase()}</button>)}</div>
+          <div className="format-row optical-rail" style={{ '--segments': 4, '--selected': ['webp', 'png', 'jpeg', 'avif'].indexOf(options.format) } as CSSProperties}><OpticalLens/>{(['webp', 'png', 'jpeg', 'avif'] as const).map(format => <button type="button" aria-pressed={options.format === format} key={format} onClick={() => update({ format, lossless: format === 'jpeg' ? false : options.lossless })}>{format === 'jpeg' ? 'JPG' : format.toUpperCase()}</button>)}</div>
         </fieldset>
         {['png', 'webp', 'avif'].includes(options.format) && <label className="check-row">
           <input disabled={busy} type="checkbox" checked={options.lossless} onChange={e => update({ lossless: e.target.checked })}/><span>Без потерь</span>
         </label>}
         <label className="field range-field">
           <span>Качество <strong>{lossless ? 'Без потерь' : options.quality}</strong></span>
-          <input disabled={busy || lossless} aria-label="Качество сжатия" type="range" min="1" max="100" value={options.quality} onChange={e => update({ quality: Number(e.target.value) })}/>
+          <span className="quality-track" style={{ '--quality': (options.quality - 1) / 99 } as CSSProperties}><OpticalLens className="quality-lens"/><input disabled={busy || lossless} aria-label="Качество сжатия" type="range" min="1" max="100" value={options.quality} onChange={e => update({ quality: Number(e.target.value) })}/></span>
           <span className="range-captions"><small>Меньше файл</small><small>Больше деталей</small></span>
         </label>
         {options.format === 'png' && <p className="field-help">{lossless ? 'PNG без потерь: цвета сохраняются точно. Вес может совпадать с режимом «Увеличить».' : 'PNG: уменьшение палитры до 256 цветов с поддержкой прозрачности. Меньше вес, возможны изменения оттенков даже при качестве 100.'}</p>}

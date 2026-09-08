@@ -1,0 +1,11 @@
+.optical-lens { position: absolute; display: block; pointer-events: none; border-radius: 12px; isolation: isolate; background: var(--lens-body); box-shadow: var(--lens-shadow), inset 0 1px 1px #fff6, inset 0 -1px 1px var(--lens-lower-edge); }
+.optical-definitions { position: absolute; }
+.optical-refraction { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; clip-path: inset(0 round 12px); }
+.optical-environment { position: absolute; inset: 0; background: linear-gradient(170deg, transparent 10%, #edf8ff35 12%, #a7c6ce12 21%, transparent 26%, #b9cdd329 68%, #fdf7ee55 72%, #839aa82e 78%, transparent 86%), var(--lens-environment); }
+.optical-specular { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(155deg, #fff2, transparent 38% 68%, var(--lens-lower-edge)); box-shadow: inset 0 1px 0 #fff9, inset 1px 0 0 #d6f6ff66, inset -1px 0 0 #ffd9c14d, inset 0 -1px 0 var(--lens-lower-edge); }
+.optical-specular::after { content: ''; position: absolute; inset: 2px 5px auto; height: 24%; border-radius: 50%; background: linear-gradient(100deg, transparent, #fff5, transparent); transform: translateX(-9%); transition: transform 180ms, opacity 180ms; }
+.optical-rail { position: relative; isolation: isolate; }
+.optical-rail > .optical-lens { z-index: -1; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--segments, 3)); transform: translateX(calc(var(--selected, 0) * 100%)); transition: transform 210ms cubic-bezier(.2,.85,.25,1.12); }
+.optical-rail:hover .optical-specular::after { transform: translateX(9%); }
+@media (prefers-reduced-motion: reduce) { .optical-lens,.optical-specular::after { transition: none !important; } }
+@media (forced-colors: active) { .optical-lens { border: 1px solid Highlight; }.optical-refraction,.optical-specular { display: none; } }

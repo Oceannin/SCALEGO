@@ -27,7 +27,7 @@ export function MetalAccent({ paused, theme }: { paused: boolean; theme: 'dark' 
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const element = canvas.current
     if (!element || reducedMotion) return
     let observer: ResizeObserver | undefined
