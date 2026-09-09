@@ -80,10 +80,10 @@ async function engineStatus(root) {
   for (const model of MODELS) {
     let available = engines[model.engine].available, code = available ? null : 'ENGINE_UNAVAILABLE'
     if (available) try { for (const scale of model.nativeScales) await checkFiles(root, planUpscale(model.id, scale), true) } catch (error) { available = false; code = error.code }
-    models.push({ id: model.id, displayName: model.displayName, name: model.name, category: model.category, nativeScales: model.nativeScales, qualityProfile: model.qualityProfile, available, code,
-      message: available ? 'Модель установлена. Vulkan проверяется при обработке.' : code === 'MODEL_MISSING' && !model.redistribution ? 'Модель не включена: условия распространения весов не подтверждены.' : new EngineError(code).message })
+    models.push({ id: model.id, name: model.name, category: model.category, nativeScales: model.nativeScales, available, code,
+      statusCode: available ? 'MODEL_READY' : code === 'MODEL_MISSING' && !model.redistribution ? 'MODEL_RESTRICTED' : code })
   }
-  return { available: models.some(model => model.available), name: 'Локальный AI · Vulkan', message: 'Доступность проверяется отдельно для каждой модели.', engines, models }
+  return { available: models.some(model => model.available), statusCode: 'ENGINE_STATUS', engines, models }
 }
 function redact(log, paths) {
   for (const value of paths.filter(Boolean).sort((a, b) => b.length - a.length)) log = log.split(value).join('<path>').split(value.replaceAll('\\', '/')).join('<path>')

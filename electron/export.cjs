@@ -3,11 +3,12 @@ const fs = require('node:fs/promises')
 const path = require('node:path')
 const crypto = require('node:crypto')
 const { constants } = require('node:fs')
+const { UserError } = require('./user-errors.cjs')
 async function publishResult({ outputPath, recipePath, directory, name }) {
   const root = await fs.realpath(directory)
   const stem = path.parse(path.basename(name)).name.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').slice(0, 120) || 'image'
   const extension = path.extname(outputPath).toLowerCase()
-  if (!['.png','.webp','.jpg','.avif'].includes(extension)) throw new Error('Неподдерживаемый формат экспорта.')
+  if (!['.png','.webp','.jpg','.avif'].includes(extension)) throw new UserError('EXPORT_FORMAT_UNSUPPORTED')
   const staging = await fs.mkdtemp(path.join(root, '.scalego-export-'))
   try {
     const readyImage = path.join(staging, 'image' + extension)
@@ -25,8 +26,6 @@ async function publishResult({ outputPath, recipePath, directory, name }) {
           try { await fs.access(file); occupied = true } catch(e) { if(e.code !== 'ENOENT') throw e }
         }
         if (occupied) continue
-        // Link publishes an already complete file atomically and cannot replace an existing file.
-        // On volumes without hard links, exclusive copy keeps overwrite protection.
         let imagePublished = false
         try {
           try { await fs.link(readyImage, destination) }
@@ -44,7 +43,7 @@ async function publishResult({ outputPath, recipePath, directory, name }) {
         return { canceled: false, name: path.basename(destination) }
       } finally { await lock.close(); await fs.unlink(lockPath).catch(() => {}) }
     }
-    throw new Error('Не удалось подобрать свободное имя.')
+    throw new UserError('EXPORT_NAME_UNAVAILABLE')
   } finally {
     const checked = path.resolve(staging)
     if (path.dirname(checked) === root && path.basename(checked).startsWith('.scalego-export-')) await fs.rm(checked, { recursive: true, force: true })

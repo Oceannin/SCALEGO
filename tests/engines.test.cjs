@@ -33,7 +33,7 @@ test('native error categories are actionable and retain diagnostics separately',
     [{log:'load_param invalid'},'MODEL_CORRUPTED'], [{log:'_wfopen x.bin failed'},'MODEL_MISSING'],
     [{log:'decode image failed'},'UNSUPPORTED_IMAGE'], [{code:1},'PROCESS_FAILED'],
     [{aborted:true,code:1},'CANCELLED'], [{timedOut:true},'UNEXPECTED_ENGINE_ERROR'],
-  ]) { assert.equal(classifyFailure(input),expected); assert.match(new EngineError(expected).message, /[А-Яа-я]/); assert.doesNotMatch(new EngineError(expected).message, /vkCreateInstance|load_param/) }
+  ]) { const error = new EngineError(expected); assert.equal(classifyFailure(input),expected); assert.equal(error.code, expected); assert.doesNotMatch(error.message, /vkCreateInstance|load_param/) }
   assert.equal(redact('C:/private/photo.png C:/private', ['C:/private/photo.png','C:/private']), '<path> <path>')
 })
 test('actual child process exit, missing executable, bounded logs, timeout and cancellation', async () => {

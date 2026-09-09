@@ -10,20 +10,40 @@ const { inspect } = require('./pipeline.cjs')
 const { validateOptions } = require('./contracts.cjs')
 const { engineStatus } = require('./engine.cjs')
 const { publishResult } = require('./export.cjs')
+const { UserError, errorPayload } = require('./user-errors.cjs')
+
 if (process.env.SCALEGO_TEST_DATA && !app.isPackaged) app.setPath('userData', path.resolve(process.env.SCALEGO_TEST_DATA))
 if (!app.requestSingleInstanceLock()) app.exit(0)
 app.on('second-instance', () => { if (window && !window.isDestroyed()) { if (window.isMinimized()) window.restore(); window.focus() } })
 protocol.registerSchemesAsPrivileged([{ scheme: 'scalego-asset', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }])
 let window, activeChild, activeJob, processing = false, exportDirectory = null
 const assets = new Map(), jobs = []
-// Optional pinned runtime outside the portable extraction directory. Unknown or
-// modified executables/weights still fail the same integrity checks.
 const engineRoot = () => process.env.SCALEGO_ENGINE_ROOT && path.isAbsolute(process.env.SCALEGO_ENGINE_ROOT)
   ? process.env.SCALEGO_ENGINE_ROOT : app.isPackaged ? path.join(process.resourcesPath, 'engine') : path.join(__dirname, '..', 'runtime')
 const workRoot = () => path.join(app.getPath('userData'), 'work')
 const publicAsset = asset => ({ id: asset.id, name: asset.name, width: asset.width, height: asset.height, bytes: asset.bytes, format: asset.format, alpha: asset.alpha, url: `scalego-asset://image/${asset.id}`, thumbnail: `scalego-asset://image/${asset.id}?thumb=1` })
-const publicJob = job => ({ id: job.id, assetId: job.assetId, name: job.name, status: job.status, percent: job.percent, stage: job.stage, error: job.error, errorCode: job.errorCode, options: job.options, result: job.result ? { ...publicAsset(assets.get(job.result.assetId)), originalBytes: job.result.originalBytes, quality: job.result.quality, warnings: job.result.warnings, elapsedMs: job.result.elapsedMs, targetMet: job.result.targetMet } : undefined })
+const legacyStages = Object.freeze({ 'В очереди': 'QUEUED', 'Подготовка': 'PREPARING', 'AI-увеличение': 'AI_UPSCALING', 'Увеличение': 'UPSCALING', 'Сохранение PNG': 'SAVING_PNG', 'Сжатие': 'COMPRESSING', 'Подбор размера': 'TARGETING_SIZE', 'Готово': 'READY', 'Ошибка': 'ERROR', 'Отменено': 'CANCELLED', 'Прервано': 'INTERRUPTED' })
+const stageCode = stage => legacyStages[stage] || (typeof stage === 'string' && /^[A-Z_]+$/.test(stage) ? stage : '')
+const normalizeWarning = warning => {
+  if (warning && typeof warning === 'object' && typeof warning.code === 'string') return warning
+  if (typeof warning !== 'string') return null
+  if (warning.startsWith('Для ограничения веса')) { const values = warning.match(/\d+/g) || []; return { code: 'QUALITY_REDUCED', params: { from: Number(values[0]) || 0, to: Number(values[1]) || 0 } } }
+  if (warning.startsWith('Цвета преобразованы')) return { code: 'COLOR_CONVERTED' }
+  if (warning.startsWith('Не удалось достичь')) return { code: 'TARGET_NOT_MET' }
+  if (warning.startsWith('JPEG не поддерживает')) return { code: 'JPEG_ALPHA_FLATTENED' }
+  if (warning.startsWith('Результат больше')) return { code: 'RESULT_LARGER' }
+  return null
+}
+const publicJob = job => {
+  const fallbackError = job.status === 'error' && !job.errorCode ? { code: 'UNEXPECTED_ERROR', params: {} } : null
+  const result = job.result ? { ...publicAsset(assets.get(job.result.assetId)), originalBytes: job.result.originalBytes, quality: job.result.quality, warnings: (job.result.warnings || []).map(normalizeWarning).filter(Boolean), elapsedMs: job.result.elapsedMs, targetMet: job.result.targetMet } : undefined
+  return { id: job.id, assetId: job.assetId, name: job.name, status: job.status, percent: job.percent, stage: stageCode(job.stage), errorCode: job.errorCode || fallbackError?.code, errorParams: job.errorParams || fallbackError?.params, options: job.options, result }
+}
 const snapshot = () => ({ assets: [...assets.values()].filter(a => !a.result).map(publicAsset), jobs: jobs.map(publicJob), busy: processing, outputDirectory: exportDirectory ? path.basename(exportDirectory) : null })
+const locale = value => value === 'ru' ? 'ru' : 'en'
+const dialogCopy = language => locale(language) === 'ru'
+  ? { addTitle: 'Добавить изображения', images: 'Изображения', saveTitle: 'Куда сохранить результаты', folderTitle: 'Выбрать папку результатов' }
+  : { addTitle: 'Add Images', images: 'Images', saveTitle: 'Choose Output Folder', folderTitle: 'Choose Output Folder' }
 let persistTimer
 let persistChain = Promise.resolve()
 function persistSession() {
@@ -49,7 +69,7 @@ async function restoreSession() {
       if (!assets.has(saved.assetId)) continue
       try { saved.options = validateOptions(saved.options) } catch { continue }
       if (saved.result && (!assets.has(saved.result.assetId) || !await owned(saved.result.outputPath) || !await owned(saved.result.recipePath))) continue
-      if (['running', 'queued'].includes(saved.status)) { saved.status = 'interrupted'; saved.stage = 'Прервано'; saved.percent = 0 }
+      if (['running', 'queued'].includes(saved.status)) { saved.status = 'interrupted'; saved.stage = 'INTERRUPTED'; saved.percent = 0 }
       jobs.push(saved)
     }
     if (typeof data.exportDirectory === 'string') try { if ((await fs.stat(data.exportDirectory)).isDirectory()) exportDirectory = data.exportDirectory } catch {}
@@ -77,9 +97,9 @@ async function register(filePath, result = false, known = null) {
 async function importPaths(paths) {
   const errors = []
   for (const input of paths.slice(0, 200)) {
-    try { if ([...assets.values()].filter(a => !a.result).length >= 200) throw new Error('В рабочей области уже 200 файлов. Уберите ненужные исходники.'); await register(input) } catch (error) { errors.push(`${path.basename(input)}: ${error.message}`) }
+    try { if ([...assets.values()].filter(a => !a.result).length >= 200) throw new UserError('WORKSPACE_LIMIT'); await register(input) } catch (error) { errors.push({ name: path.basename(input), ...errorPayload(error) }) }
   }
-  if (paths.length > 200) errors.push('За один раз можно добавить до 200 файлов.')
+  if (paths.length > 200) errors.push({ code: 'IMPORT_BATCH_LIMIT', params: {} })
   notify(); return { errors }
 }
 function runWorker(payload, job) {
@@ -90,10 +110,10 @@ function runWorker(payload, job) {
     child.on('message', message => {
       if (message.type === 'progress' && job.status === 'running') { job.percent = Math.round(message.percent); job.stage = message.stage; notify() }
       if (message.type === 'result') { settled = true; resolve(message.result) }
-      if (message.type === 'error') { settled = true; reject(Object.assign(new Error(message.message), { code: message.code })) }
+      if (message.type === 'error') { settled = true; reject(Object.assign(new Error(message.code), { code: message.code, params: message.params })) }
     })
     child.on('error', error => { settled = true; reject(error) })
-    child.on('exit', code => { if (activeChild === child) activeChild = null; if (!settled) reject(new Error(job.status === 'canceled' ? 'Обработка отменена.' : `Процесс обработки завершился (код ${code}).`)) })
+    child.on('exit', code => { if (activeChild === child) activeChild = null; if (!settled) reject(job.status === 'canceled' ? new UserError('CANCELLED') : new UserError('PROCESS_EXITED', { code: code ?? '' })) })
     child.stderr.on('data', () => {})
     child.send({ type: 'process', payload })
   })
@@ -112,26 +132,41 @@ async function processQueue() {
         const output = await register(result.outputPath, true, result)
         if (job.status !== 'running') { assets.delete(output.id); continue }
         output.name = `${path.parse(job.name).name} · ${result.format.toUpperCase()}`
-        job.result = { ...result, assetId: output.id }; job.status = 'done'; job.percent = 100; job.stage = 'Готово'
+        job.result = { ...result, assetId: output.id }; job.status = 'done'; job.percent = 100; job.stage = 'READY'
         await fs.writeFile(path.join(tempDirectory, 'job.json'), JSON.stringify({ source: assets.get(job.assetId).path, options: job.options, result }, null, 2))
-      } catch (error) { if (job.status === 'running') { job.status = 'error'; job.error = error.message; job.errorCode = error.code; job.stage = 'Ошибка' } }
+      } catch (error) { if (job.status === 'running') { const payload = errorPayload(error); job.status = 'error'; job.errorCode = payload.code; job.errorParams = payload.params; job.stage = 'ERROR' } }
       finally { activeJob = null; notify() }
     }
   } finally { processing = false; notify() }
 }
-async function exportJob(id) {
+async function exportJob(id, language) {
   const job = jobs.find(j => j.id === id && j.status === 'done')
-  if (!job?.result) throw new Error('Результат ещё не готов.')
+  if (!job?.result) throw new UserError('RESULT_NOT_READY')
   if (!exportDirectory) {
-    const choice = await dialog.showOpenDialog(window, { title: 'Куда сохранить результаты', properties: ['openDirectory', 'createDirectory'] })
+    const choice = await dialog.showOpenDialog(window, { title: dialogCopy(language).saveTitle, properties: ['openDirectory', 'createDirectory'] })
     if (choice.canceled) return { canceled: true }
     exportDirectory = await fs.realpath(choice.filePaths[0]); notify()
   }
   return publishResult({ outputPath: job.result.outputPath, recipePath: job.result.recipePath, directory: exportDirectory, name: job.name })
 }
+async function exportJobs(assetIds, language) {
+  if (processing) throw new UserError('WAIT_PROCESSING')
+  const latest = new Map()
+  for (const job of jobs) if (job.status === 'done') latest.set(job.assetId, job)
+  const requestedIds = assetIds || [...latest.keys()]
+  let count = 0
+  for (const id of requestedIds) {
+    const job = latest.get(id)
+    if (!job) continue
+    const result = await exportJob(job.id, language)
+    if (result.canceled) return { count, canceled: true }
+    count++
+  }
+  return { count, canceled: false }
+}
 function handle(name, handler) {
   ipcMain.handle(`scalego:${name}`, async (event, payload) => {
-    if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Недопустимый источник запроса.')
+    if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new UserError('REQUEST_SOURCE_INVALID')
     return handler(payload)
   })
 }
@@ -146,16 +181,17 @@ app.whenReady().then(async () => {
   })
   handle('state', snapshot)
   handle('engine', () => engineStatus(engineRoot()))
-  handle('import', async () => {
-    const chosen = await dialog.showOpenDialog(window, { title: 'Добавить изображения', properties: ['openFile', 'multiSelections'], filters: [{ name: 'Изображения', extensions: ['png', 'jpg', 'jpeg', 'webp', 'avif'] }] })
+  handle('import', async payload => {
+    const copy = dialogCopy(payload?.language)
+    const chosen = await dialog.showOpenDialog(window, { title: copy.addTitle, properties: ['openFile', 'multiSelections'], filters: [{ name: copy.images, extensions: ['png', 'jpg', 'jpeg', 'webp', 'avif'] }] })
     return chosen.canceled ? { errors: [] } : importPaths(chosen.filePaths)
   })
   handle('drop', paths => {
-    if (!Array.isArray(paths) || paths.some(p => typeof p !== 'string' || !path.isAbsolute(p))) throw new Error('Некорректные файлы.')
+    if (!Array.isArray(paths) || paths.some(p => typeof p !== 'string' || !path.isAbsolute(p))) throw new UserError('INVALID_FILES')
     return importPaths(paths)
   })
   handle('remove', async id => {
-    if (processing) throw new Error('Дождитесь завершения очереди.')
+    if (processing) throw new UserError('WAIT_QUEUE')
     const source = assets.get(id)
     if (!source || source.result) return
     const related = jobs.filter(job => job.assetId === id)
@@ -174,30 +210,27 @@ app.whenReady().then(async () => {
     }
   })
   handle('start', async payload => {
-    if (processing) throw new Error('Очередь уже выполняется.')
+    if (processing) throw new UserError('QUEUE_BUSY')
     const options = validateOptions(payload?.options)
-    if (!Array.isArray(payload?.ids) || !payload.ids.length || payload.ids.length > 200 || payload.ids.some(id => !assets.has(id) || assets.get(id).result)) throw new Error('Выберите исходные изображения.')
-    if (options.mode !== 'compress' && options.method === 'ai' && !(await engineStatus(engineRoot())).available) throw new Error('AI-движок не установлен. Выберите обычное увеличение.')
-    if (processing) throw new Error('Очередь уже выполняется.')
-    for (const id of new Set(payload.ids)) jobs.push({ id: crypto.randomUUID(), assetId: id, name: assets.get(id).name, options, status: 'queued', percent: 0, stage: 'В очереди' })
+    if (!Array.isArray(payload?.ids) || !payload.ids.length || payload.ids.length > 200 || payload.ids.some(id => !assets.has(id) || assets.get(id).result)) throw new UserError('SELECT_SOURCE_IMAGES')
+    if (options.mode !== 'compress' && options.method === 'ai' && !(await engineStatus(engineRoot())).available) throw new UserError('AI_NOT_INSTALLED')
+    if (processing) throw new UserError('QUEUE_BUSY')
+    for (const id of new Set(payload.ids)) jobs.push({ id: crypto.randomUUID(), assetId: id, name: assets.get(id).name, options, status: 'queued', percent: 0, stage: 'QUEUED' })
     void processQueue(); return snapshot()
   })
   handle('resume', () => {
-    if (processing) throw new Error('Очередь уже выполняется.')
-    for (const job of jobs.filter(j => j.status === 'interrupted')) { job.id = crypto.randomUUID(); job.status = 'queued'; job.stage = 'В очереди'; job.percent = 0 }
+    if (processing) throw new UserError('QUEUE_BUSY')
+    for (const job of jobs.filter(j => j.status === 'interrupted')) { job.id = crypto.randomUUID(); job.status = 'queued'; job.stage = 'QUEUED'; job.percent = 0 }
     void processQueue(); return snapshot()
   })
-  handle('cancel', () => { for (const job of jobs) if (['queued', 'running'].includes(job.status)) { job.status = 'canceled'; job.stage = 'Отменено' } if (activeChild?.connected) activeChild.send({ type: 'cancel' }); notify() })
-  handle('export', id => exportJob(id))
-  handle('export-all', async () => {
-    if (processing) throw new Error('Дождитесь завершения обработки.')
-    let count = 0
-    const latest = new Map()
-    for (const job of jobs) if (job.status === 'done') latest.set(job.assetId, job)
-    for (const job of latest.values()) { const result = await exportJob(job.id); if (result.canceled) return { count, canceled: true }; count++ }
-    return { count, canceled: false }
+  handle('cancel', () => { for (const job of jobs) if (['queued', 'running'].includes(job.status)) { job.status = 'canceled'; job.stage = 'CANCELLED' } if (activeChild?.connected) activeChild.send({ type: 'cancel' }); notify() })
+  handle('export', payload => exportJob(payload?.id, payload?.language))
+  handle('export-selected', payload => {
+    if (!Array.isArray(payload?.ids) || !payload.ids.length || payload.ids.length > 200 || payload.ids.some(id => typeof id !== 'string' || !assets.has(id) || assets.get(id).result)) throw new UserError('SELECT_SOURCE_IMAGES')
+    return exportJobs([...new Set(payload.ids)], payload?.language)
   })
-  handle('directory', async () => { const choice = await dialog.showOpenDialog(window, { properties: ['openDirectory', 'createDirectory'] }); if (!choice.canceled) exportDirectory = await fs.realpath(choice.filePaths[0]); notify(); return snapshot() })
+  handle('export-all', payload => exportJobs(null, payload?.language))
+  handle('directory', async payload => { const choice = await dialog.showOpenDialog(window, { title: dialogCopy(payload?.language).folderTitle, properties: ['openDirectory', 'createDirectory'] }); if (!choice.canceled) exportDirectory = await fs.realpath(choice.filePaths[0]); notify(); return snapshot() })
   handle('reveal', async () => { if (exportDirectory) await shell.openPath(exportDirectory) })
   window = new BrowserWindow({ width: 1440, height: 940, minWidth: 900, minHeight: 640, title: 'SCALEGO', backgroundColor: '#0d0f12', show: false, autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true } })
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
@@ -211,7 +244,7 @@ let quitting = false
 app.on('before-quit', event => {
   if (quitting) return
   event.preventDefault(); quitting = true; clearTimeout(persistTimer)
-  for (const job of jobs) if (['running','queued'].includes(job.status)) { job.status = 'interrupted'; job.stage = 'Прервано' }
+  for (const job of jobs) if (['running','queued'].includes(job.status)) { job.status = 'interrupted'; job.stage = 'INTERRUPTED' }
   if (activeChild?.connected) activeChild.send({ type: 'cancel' })
   void persistSession().finally(() => app.quit())
 })

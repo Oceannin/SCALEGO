@@ -39,7 +39,7 @@ test('chain applies enlargement before JPEG encode and uses explicit alpha backg
   assert.equal(meta.width, 160); assert.equal(meta.height, 120); assert.equal(meta.hasAlpha, false); assert.equal(meta.format, 'jpeg')
   const data = await sharp(output.outputPath).removeAlpha().raw().toBuffer()
   assert.ok(data[0] > 230 && data[1] < 20 && data[2] < 20)
-  assert.ok(output.warnings.some(w => w.includes('JPEG')))
+  assert.ok(output.warnings.some(w => w.code === 'JPEG_ALPHA_FLATTENED'))
 })
 test('AVIF and lossless PNG compress-only outputs decode correctly', async t => {
   const f = await fixture(t)
@@ -56,7 +56,7 @@ test('unreachable lossless budget is reported without resizing', async t => {
   await sharp(require('node:crypto').randomBytes(80 * 60 * 3), { raw: { width: 80, height: 60, channels: 3 } }).png().toFile(f.source)
   const output = await processImage({ input: f.source, tempDirectory: path.join(f.root, 'out'), options: { ...defaults, format: 'png', lossless: true, targetKB: 1 } })
   assert.equal(output.width, 80); assert.equal(output.targetMet, false); assert.ok(output.bytes > 1024)
-  assert.ok(output.warnings.some(w => w.includes('заданного веса')))
+  assert.ok(output.warnings.some(w => w.code === 'TARGET_NOT_MET'))
 })
 test('lossy target budget reduces quality while preserving pixel dimensions', async t => {
   const f = await fixture(t)
@@ -86,14 +86,14 @@ test('cancel and malformed input fail without publishing result', async t => {
   const f = await fixture(t)
   const controller = new AbortController(); controller.abort()
   const out = path.join(f.root, 'out')
-  await assert.rejects(processImage({ input: f.source, tempDirectory: out, options: defaults }, () => {}, controller.signal), /отменена/)
+  await assert.rejects(processImage({ input: f.source, tempDirectory: out, options: defaults }, () => {}, controller.signal), { code: 'CANCELLED' })
   await assert.rejects(fs.access(path.join(out, 'result.webp')))
   const corrupt = path.join(f.root, 'bad.png'); await fs.writeFile(corrupt, 'not a png')
   await assert.rejects(inspect(corrupt))
 })
 test('boundary validation rejects arbitrary methods, non-finite values and oversized output', () => {
   for (const patch of [{ mode: 'shell' }, { method: 'exec' }, { scale: 99 }, { quality: NaN }, { quality: 101 }, { background: 'red;rm' }, { targetKB: -1 }]) assert.throws(() => validateOptions({ ...defaults, ...patch }))
-  assert.throws(() => dimensions({ width: 10000, height: 10000 }, { mode: 'upscale', scale: 4 }), /лимит/)
+  assert.throws(() => dimensions({ width: 10000, height: 10000 }, { mode: 'upscale', scale: 4 }), { code: 'OUTPUT_TOO_LARGE' })
   assert.deepEqual(dimensions({ width: 100, height: 200, orientation: 6 }, defaults), { width: 200, height: 100 })
 })
 

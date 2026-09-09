@@ -51,7 +51,7 @@ test('all installed intent models: native dimensions, RGBA edges, codecs, tiny a
    try {
     // Small inputs can emit only 0%; cancel during native startup instead of
     // depending on an intermediate percentage that the CLI need not emit.
-    await assert.rejects(processImage({input:source,tempDirectory:directory,engineRoot,options:{model:model.id,mode:'upscale',method:'ai',scale:4,format:'png',quality:90,lossless:true,background:'#ffffff',targetKB:0}}, percent=>{if(percent===10&&!timer)timer=setTimeout(()=>controller.abort(),300)},controller.signal),/отменена/)
+    await assert.rejects(processImage({input:source,tempDirectory:directory,engineRoot,options:{model:model.id,mode:'upscale',method:'ai',scale:4,format:'png',quality:90,lossless:true,background:'#ffffff',targetKB:0}}, percent=>{if(percent===10&&!timer)timer=setTimeout(()=>controller.abort(),300)},controller.signal),{code:'CANCELLED'})
    } finally { clearTimeout(timer) }
    assert.equal(controller.signal.aborted,true,'Cancel must interrupt native inference')
    const cancelledLog=JSON.parse((await fs.readFile(path.join(directory,'engine-log.jsonl'),'utf8')).trim())
