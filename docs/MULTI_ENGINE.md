@@ -44,7 +44,7 @@ AI получает RGB PNG в sRGB/8-bit. Исходный alpha масштаб
 
 Рецепт получает необязательное `inference`: engine, binaryVersion, model/modelVersion, modelFiles/modelSha256, requestedScale/nativeScale, intermediateResize, alpha strategy, backend, tile, durationMs. У compression-only/Lanczos/Nearest поле равно null. Старые поля options/output/sourceHash и SHA256 сохранены. Импорт рецептов по-прежнему не реализован.
 
-Distributable 0.2.0-alpha.1 включает веса всех пяти моделей. Старые задачи ESRGAN сохраняют прежнюю модель; оба прежних режима проверены реальным inference. Владелец принял решение о распространении Real-ESRGAN-family weights на основании BSD-3-Clause официального upstream. Подробнее: [лицензионный аудит](MODEL_AUDIT.md).
+Distributable 0.3.0-alpha.1 включает веса всех пяти моделей. Старые задачи ESRGAN сохраняют прежнюю модель; оба прежних режима проверены реальным inference. Владелец принял решение о распространении Real-ESRGAN-family weights на основании BSD-3-Clause официального upstream. Подробнее: [лицензионный аудит](MODEL_AUDIT.md).
 
 ## Воспроизводимые измерения
 

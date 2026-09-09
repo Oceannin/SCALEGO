@@ -45,9 +45,9 @@ node scripts/models-smoke.cjs --packaged
 node scripts/verify-package.cjs
 ```
 
-Перед сборкой выполните `engine:install`. Подготовка сверяет checked-in hashes и копирует только файлы из allowlist в `build/engine`, создаёт иконку и собирает лицензии. Случайные DLL из runtime не копируются. Пакеты находятся в `release/0.2.0-alpha.1/`. Закройте запущенный Portable из этой папки перед пересборкой. Эти команды не публикуют GitHub Release.
+Перед сборкой выполните `engine:install`. Подготовка сверяет checked-in hashes и копирует только файлы из allowlist в `build/engine`, создаёт иконку и собирает лицензии. Случайные DLL из runtime не копируются. Пакеты находятся в `release/0.3.0-alpha.1/`. Закройте запущенный Portable из этой папки перед пересборкой. Эти команды не публикуют GitHub Release.
 
-`smoke:packaged` проверяет `win-unpacked/SCALEGO.exe` из output directory в package.json; `smoke:portable` — распаковку и запуск Portable, AI, экспорт и завершение. `models-smoke --packaged` проверяет каталог, запуск доступных моделей и рецепты. Для проверки внешнего runtime добавьте `--engine-root runtime`. `verify-package` проверяет полный состав native-файлов, hashes, notices, актуальность ASAR и создаёт `SHA256SUMS.txt`. Для короткой проверки выпуска: `node scripts/release-smoke.cjs` запускает Portable и по одному заданию Real-ESRGAN и Real-CUGAN; `node scripts/zoom-smoke.cjs release/0.2.0-alpha.1/win-unpacked/SCALEGO.exe` проверяет zoom без inference. Установка NSIS — отдельная ручная проверка.
+`smoke:packaged` проверяет `win-unpacked/SCALEGO.exe` из output directory в package.json; `smoke:portable` — распаковку и запуск Portable, AI, экспорт и завершение. `models-smoke --packaged` проверяет каталог, запуск доступных моделей и рецепты. Для проверки внешнего runtime добавьте `--engine-root runtime`. `verify-package` проверяет полный состав native-файлов, hashes, notices, актуальность ASAR и создаёт `SHA256SUMS.txt`. Для короткой проверки выпуска: `node scripts/release-smoke.cjs` запускает Portable и по одному заданию Real-ESRGAN и Real-CUGAN; `node scripts/zoom-smoke.cjs release/0.3.0-alpha.1/win-unpacked/SCALEGO.exe` проверяет zoom без inference. Установка NSIS — отдельная ручная проверка.
 
 `npm run benchmark -- --gpu 0` создаёт reproducible JSON practical benchmark; `--gpu 1` выбирает другой адаптер. Подробности и расширение registry: [MULTI_ENGINE](MULTI_ENGINE.md), лицензии и source reproduction: [MODEL_AUDIT](MODEL_AUDIT.md), [jpegli feasibility](JPEGLI_AUDIT.md).
 
@@ -68,4 +68,4 @@ node scripts/verify-package.cjs
 
 ## Выпуск
 
-Публикуйте из проверенного коммита. Текущая версия — `0.2.0-alpha.1`; package и lockfile обновляются согласованно. Рецепт и Portable smoke читают версию из package.json. Приложите Portable, установщик, контрольные суммы и release notes. Alpha остаётся prerelease. Основание распространения весов и принятое владельцем решение сохраняйте в licensing-документации.
+Публикуйте из проверенного коммита. Текущая версия — `0.3.0-alpha.1`; package и lockfile обновляются согласованно. Рецепт и Portable smoke читают версию из package.json. Приложите Portable, установщик, контрольные суммы и release notes. Alpha остаётся prerelease. Основание распространения весов и принятое владельцем решение сохраняйте в licensing-документации.

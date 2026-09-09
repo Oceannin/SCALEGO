@@ -1,104 +1,101 @@
-<div align="center">
-  <img src="docs/images/hero.svg" width="100%" alt="SCALEGO — Больше деталей. Меньше вес. Ваши изображения. Ваш компьютер." />
-  <p><strong>Увеличивайте изображения и готовьте их к публикации — в одном окне.</strong><br/>AI-увеличение, сжатие PNG / JPG / WebP / AVIF и сравнение до/после. Всё локально.</p>
-  <p><a href="https://github.com/Oceannin/SCALEGO/releases"><strong>Скачать для Windows</strong></a> · <a href="#за-минуту-до-первого-результата">Быстрый старт</a> · <a href="#посмотрите-как-это-работает">Посмотреть приложение</a> · <a href="docs/README.md">Документация</a></p>
-  <p><code>Windows x64</code> &nbsp; <code>Alpha</code> &nbsp; <code>Без аккаунта</code> &nbsp; <code>Без загрузки в облако</code></p>
-</div>
+[English](README.md) | [Русский](README.ru.md)
 
-## Из исходника — в готовый файл
+# SCALEGO
 
-Маленькая иллюстрация для обложки. Тяжёлый PNG для сайта. Папка изображений, которую нужно подготовить разом. SCALEGO соединяет увеличение и сжатие в одну очередь: вы выбираете параметры, видите результат и сохраняете только то, что подходит.
+SCALEGO is a local Windows workstation for enlarging, compressing, comparing, and exporting images. It combines conventional resizing with optional AI upscaling and keeps the processing workflow on your computer.
 
-| Нужно… | Выберите | Что получите |
-| :--- | :--- | :--- |
-| Больше разрешение | **Увеличить** | 2×, 3× или 4×; PNG без потерь после обработки |
-| Увеличить и подготовить к публикации | **Увеличить и сжать** | Увеличенный файл в выбранном формате с настройкой качества |
-| Уменьшить вес | **Только сжать** | PNG, JPG, WebP или AVIF с прежними размерами |
+> Current release: [v0.3.0-alpha.1](https://github.com/Oceannin/SCALEGO/releases/tag/v0.3.0-alpha.1).
 
-**Исходники остаются на месте.** Приложение работает с копиями, а экспорт не перезаписывает существующие файлы.
+## Features
 
-## Посмотрите, как это работает
+- Three workflows: upscale, upscale and compress, or compress without changing dimensions.
+- Side-by-side comparison with a draggable split, Original/Result views, Fit and 1:1 zoom, mouse-wheel zoom, and selectable preview backgrounds.
+- Batch workspace for up to 200 images, with processing and export actions scoped to the current selection.
+- Five bundled AI profiles, plus Lanczos and Nearest resizing without AI.
+- PNG, JPEG, WebP, and AVIF output with quality, lossless, transparency, and optional file-size controls where the selected format supports them.
+- English and Russian interface, an in-app language switch, and a persisted language preference.
+- Light and dark themes, queue recovery, local session storage, and `.scalego` processing recipes beside exported images.
 
-![Реальный интерфейс SCALEGO: сравнение исходника и сжатого PNG, настройка качества и фактический вес результата](docs/images/workspace.png)
+## Workflow
 
-На этом тестовом рисунке PNG стал **15,1 → 5,0 КБ** при качестве 85. Размеры **480 × 360** и поддержка прозрачности сохранены. Это реальный результат приложения на собственном тестовом рисунке, а не обещание одинаковой экономии для любых изображений. Палитровый PNG может менять оттенки.
+1. **Add** one or more images with the Add button, file picker, or drag and drop.
+2. **Configure** the selected images: choose Upscale, Upscale and compress, or Compress; then set the relevant scale, method, model, format, and export options.
+3. Select **Process**. Changing a processing setting after a result is ready marks that result as outdated and makes Process the primary action again.
+4. **Compare** the original and result with the split view, zoom controls, and preview background selector.
+5. **Save** the finished result. For one image, use Save. With multiple images, Save selected exports the selected finished results, while Save all exports the latest finished result for every source.
 
-<details>
-<summary><strong>Предпочитаете светлую тему?</strong></summary>
+Source files are never overwritten. If no output folder has been chosen, SCALEGO asks for one when you save.
 
-![Светлая тема SCALEGO с теми же инструментами обработки](docs/images/workspace-light.png)
+## AI models and resize engines
 
-</details>
+The Windows packages bundle both native Vulkan engines and all five model profiles. A source checkout does not contain the runtime until `npm run engine:install` downloads the pinned official archives and verifies their SHA-256 hashes.
 
-### Больше контроля над результатом
+| Profile | Best suited to | Engine / model | Native scale | Available scale |
+| --- | --- | --- | --- | --- |
+| Photo · Natural | Softer, more natural photo detail | Real-ESRGAN / `realesrnet-x4plus` | 4× | 2×, 3×, 4× |
+| Photo · Detailed | Stronger photo detail | Real-ESRGAN / `realesrgan-x4plus` | 4× | 2×, 3×, 4× |
+| Illustration · Clean | Clean lines and denoising | Real-CUGAN SE, denoise3 | 2×, 3×, 4× | 2×, 3×, 4× |
+| Illustration · Detailed | Detailed illustration and anime | Real-ESRGAN / `realesrgan-x4plus-anime` | 4× | 2×, 3×, 4× |
+| Fast | Fast previews and lightweight graphics | Real-ESRGAN / `realesr-animevideov3` | 2×, 3×, 4× | 2×, 3×, 4× |
 
-- **Сравните перед сохранением.** Двигайте разделитель до/после, проверьте детали в масштабе 1:1 и прозрачные края на разных подложках.
-- **Подберите размер файла.** Настройте качество или задайте лимит в КБ. Если достичь лимита не получилось, вы увидите предупреждение.
-- **Обработайте целую подборку.** Выберите несколько изображений, запустите очередь и сохраните последние готовые результаты вместе. Прерванную очередь можно продолжить после запуска приложения.
-- **Выберите результат увеличения.** «Естественно» или «Детально» для фото, «Чистые линии» или «Детально» для рисунков, «Быстро» для AI-предпросмотра. Lanczos — обычное увеличение, Nearest — пиксель-арт.
-- **Сохраните параметры.** Вместе с изображением экспортируется файл `.scalego`: формат, качество, размеры и контрольные суммы результата. Импорт рецептов пока не поддерживается.
+The 4×-native profiles produce 2× and 3× results by running their native model and applying one Lanczos downscale. AI may reconstruct fine detail rather than preserve it exactly, so inspect text, faces, thin lines, and transparency before export. The alpha channel is resized separately from RGB.
 
-## Скачать
+Lanczos and Nearest run without the AI runtime. See the [model and licensing audit](docs/MODEL_AUDIT.md) and [multi-engine notes](docs/MULTI_ENGINE.md) for implementation details.
 
-**[Открыть загрузки SCALEGO →](https://github.com/Oceannin/SCALEGO/releases)**
+## Download and installation
 
-| Пакет | Как запустить |
-| :--- | :--- |
-| `SCALEGO-0.2.0-alpha.1-Portable.exe` | Скачать и открыть — установка не нужна |
-| `SCALEGO-0.2.0-alpha.1-Setup.exe` | Установить в выбранную папку |
-| `SHA256SUMS.txt` | Проверить целостность скачанного файла |
+SCALEGO targets Windows x64. Published builds are available as a Portable executable and an NSIS installer on [GitHub Releases](https://github.com/Oceannin/SCALEGO/releases). The builds are not digitally signed.
 
-Windows x64; обработка локальная. **Версия 0.2.0-alpha.1 включает все пять AI-режимов:** Natural, Photo Detailed, Clean, Illustration Detailed и Fast. См. [аудит моделей](docs/MODEL_AUDIT.md). Для AI нужны совместимый Vulkan-драйвер и [Microsoft Visual C++ Runtime x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Установите Runtime с сайта Microsoft, если его ещё нет в системе. Обычное увеличение и сжатие доступны без Vulkan. Интерфейс — на русском языке.
+AI upscaling requires a compatible Vulkan GPU, a current graphics driver, and the [Microsoft Visual C++ Redistributable x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist). Compression, Lanczos, and Nearest do not require the AI engines. macOS and Linux packages are not provided.
 
-> **Ранняя alpha.** Windows-файлы не подписаны цифровой подписью. Перед запуском сверяйте источник и контрольную сумму. Совместимость проверена на одной Windows 11 машине; работа со всеми видеокартами не заявляется. [Требования и ограничения](docs/USER_GUIDE.md#требования-и-ограничения).
+## Formats and limits
 
-Portable не требует установки, но хранит рабочую сессию в профиле Windows, а не рядом с EXE. [Где находятся рабочие файлы](docs/USER_GUIDE.md#ваши-файлы-и-приватность).
+- Static PNG, JPEG, WebP, and AVIF images are supported; animated images, RAW files, and video are not.
+- Each source may be up to 200 MB and 40 megapixels. A result may be up to 100 megapixels and 32,768 pixels on either side; available memory can impose a lower practical limit.
+- Upscale-only always produces a lossless PNG. Upscale and compress or Compress can produce PNG, JPEG, WebP, or AVIF.
+- JPEG is always lossy and replaces transparency with the selected background. WebP and AVIF support lossy and lossless export. Lossy PNG uses palette reduction and can alter colors and alpha values.
+- A file-size target adjusts quality without reducing dimensions and is not guaranteed to be achievable. In lossless mode, the target is checked but quality is not reduced.
+- Output is sRGB, 8 bits per channel. EXIF and the source ICC profile are not retained.
 
-## За минуту до первого результата
+## Development
 
-1. Откройте SCALEGO и добавьте изображения кнопкой **«Добавить»** или перетаскиванием.
-2. Выберите **«Увеличить»**, **«Увеличить и сжать»** или **«Только сжать»**.
-3. Укажите масштаб, формат и качество. Для первого опыта со сжатием начните с качества **85**.
-4. Нажмите **«Обработать»**. Сравните изображение и фактический вес.
-5. Нажмите **«Сохранить»** и выберите папку.
+Requirements: Windows x64, Node.js 24, npm, and internet access for dependencies and the optional AI runtime. No API key or `.env` file is required.
 
-### Какой AI-результат выбрать?
+```powershell
+git clone https://github.com/Oceannin/SCALEGO.git
+cd SCALEGO
+npm ci
+npm run engine:install
+npm run dev
+```
 
-| Результат | Когда полезен |
+`npm run dev:web` opens the React interface without Electron; file processing is available only in Electron. To work without AI, omit `engine:install` and choose Lanczos, Nearest, or compression-only processing.
+
+Run the maintained checks before opening a pull request:
+
+```powershell
+npm run typecheck
+npm test
+npm run build
+npm run smoke
+npm run smoke:queue
+npm run smoke:models
+```
+
+`npm run dist:win` builds the Windows Portable and NSIS packages after the runtime is installed. It prepares local artifacts only and does not publish a release. Packaging details and extended checks are documented in [Development](docs/DEVELOPMENT.md).
+
+| Path | Responsibility |
 | --- | --- |
-| **Фото · Естественно** (Natural) | Более мягкая обработка фото, меньше выраженной дорисовки текстур |
-| **Фото · Детально** (Detailed) | Более выраженные детали; проверяйте текстуры и лица |
-| **Иллюстрация · Чистые линии** (Clean) | Аниме, VTuber-графика, рисунки и большие однотонные области; шум сглаживается |
-| **Иллюстрация · Детально** (Detailed) | Детализация рисунка с более сильной резкостью |
-| **Быстро** (Fast) | Быстрый AI-предпросмотр и графика; на фото возможности ограничены |
+| `src/` | React interface, localization, themes, and UI contracts |
+| `electron/` | Electron main process, IPC, processing queue, codecs, AI engines, and export |
+| `scripts/` | Development, runtime installation, packaging, and smoke checks |
+| `tests/` | Processing, engine, queue, and export tests |
+| `docs/` | User, architecture, validation, and licensing documentation |
 
-Доступность зависит от установленных моделей. Их имена и нативные масштабы находятся в **«О модели»**. Для Natural и Detailed обработка всегда 4×, а запросы 2×/3× завершаются качественным уменьшением. Прозрачность масштабируется отдельно.
+## Licensing
 
-### Какой формат выбрать?
+SCALEGO is licensed under the [MIT License](LICENSE). Native engines, codecs, and model artifacts retain their own licenses and notices; see [Third-party notices](THIRD_PARTY_NOTICES.md) and the [model audit](docs/MODEL_AUDIT.md).
 
-| Формат | Когда полезен | Что учитывать |
-| :--- | :--- | :--- |
-| **PNG** | Иллюстрации, скриншоты, прозрачная графика | Для меньшего веса выключите «Без потерь». Палитра ограничивается до 256 цветов; возможны изменения оттенков даже при качестве 100 |
-| **JPG** | Фотографии без прозрачности | Сжатие с потерями; прозрачные участки заменяются выбранным фоном |
-| **WebP** | Изображения с прозрачностью и компактная веб-графика | Есть сжатие с потерями и без потерь |
-| **AVIF** | Компактные изображения для совместимых приложений | Кодирование может занимать больше времени; проверьте поддержку у получателя |
+## Contributing and issues
 
-«Без потерь» сохраняет **подготовленные пиксели**: выход нормализуется в sRGB, 8 бит на канал, без исходных EXIF/ICC. Увеличение может сделать файл тяжелее исходника; результат AI всегда стоит проверить глазами.
-
-## Нужна помощь?
-
-**AI недоступен?** Проверьте Vulkan-драйвер или выберите Lanczos. **Вес не изменился?** У PNG без потерь это возможно — выключите «Без потерь» и уменьшите качество. **Обработка прервалась?** После запуска нажмите «Продолжить очередь».
-
-[Руководство и решение проблем](docs/USER_GUIDE.md) · [Сообщить об ошибке](https://github.com/Oceannin/SCALEGO/issues/new/choose) · [Предложить улучшение](https://github.com/Oceannin/SCALEGO/issues/new?template=feature.yml)
-
-## Для тех, кто хочет заглянуть внутрь
-
-SCALEGO построен на Electron, React, TypeScript, Sharp/libvips и локальных Vulkan-движках Real-ESRGAN и Real-CUGAN. Собственные интерфейс и очередь; готовые кодеки и модели работают локально.
-
-[Сборка из исходников](docs/DEVELOPMENT.md) · [Архитектура](docs/APPLICATION.md) · [Проверки](docs/VALIDATION.md) · [Участие в разработке](CONTRIBUTING.md) · [Изменения](CHANGELOG.md)
-
-## Авторы и компоненты
-
-SCALEGO — проект [Oceannin](https://github.com/Oceannin). Спасибо авторам [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN), [Real-CUGAN](https://github.com/bilibili/ailab/tree/main/Real-CUGAN), [Real-CUGAN ncnn](https://github.com/nihui/realcugan-ncnn-vulkan), [ncnn](https://github.com/Tencent/ncnn), [Sharp](https://github.com/lovell/sharp), [libvips](https://github.com/libvips/libvips), [Electron](https://github.com/electron/electron), [React](https://github.com/facebook/react) и [Lucide](https://github.com/lucide-icons/lucide).
-
-Собственный код SCALEGO распространяется по лицензии [MIT](LICENSE). Лицензии сторонних компонентов и моделей сохраняются отдельно: [Third-party notices](THIRD_PARTY_NOTICES.md).
+Bug reports and focused feature requests are welcome in [GitHub Issues](https://github.com/Oceannin/SCALEGO/issues). Pull requests should keep user-facing behavior documented in both README files and pass the checks above. When reporting an image-processing problem, include the SCALEGO version, Windows version, GPU and driver, selected workflow, output format, and error text; attach only images you are allowed to share.

@@ -1,14 +1,14 @@
 # Проверки и известные ограничения
 
-Выпуск **0.2.0-alpha.1**. Проверки разработки: **7 сентября 2026**. Windows 11 x64, Ryzen 5 7600X, NVIDIA RTX 4070 Ti SUPER и встроенная AMD Radeon Graphics, Node 24.14.0, Electron 43.3.0, Sharp 0.35.4.
+Выпуск **0.3.0-alpha.1**. Проверки выпуска: **9 сентября 2026**. Windows 11 x64, Ryzen 5 7600X, NVIDIA RTX 4070 Ti SUPER и встроенная AMD Radeon Graphics, Node 24.14.0, Electron 43.3.0, Sharp 0.35.4.
 
 Ниже сохранены результаты разработки и раннего прототипа, который включал только Clean. После принятого владельцем решения public package включает все пять моделей; текущий состав и основание распространения описаны в [MODEL_AUDIT](MODEL_AUDIT.md). Полные тесты и benchmarks при последующей смене packaging не повторялись.
 
-## Проверка релизных пакетов 0.2.0-alpha.1
+## Проверка релизных пакетов 0.3.0-alpha.1
 
-7 сентября 2026: production TypeScript/Vite build и Portable/NSIS build прошли. `verify-package.cjs` подтвердил актуальные файлы в ASAR, notices и SHA256 всех моделей. Один `release-smoke.cjs` запустил настоящий Portable, проверил все 18 файлов весов внутри него и выполнил Photo Detailed и Clean, 48×32 → 96×64. `zoom-smoke.cjs` на packaged EXE проверил колесо вверх/вниз, удержание курсора, кнопки, fit, пределы масштаба и небольшое окно; page errors отсутствуют. Полный локальный test suite и benchmark при подготовке выпуска повторно не запускались.
+9 сентября 2026: TypeScript/Vite build и Portable/NSIS build прошли. CI-эквивалентный test suite без AI-runtime: 24 пройдено, 0 ошибок, 6 GPU-проверок пропущено. `verify-package.cjs` подтвердил актуальные файлы в ASAR, точный allowlist, notices и SHA256 всех встроенных моделей. AI smoke и benchmark для этого выпуска не запускались.
 
-Portable: **184,218,590 bytes**; NSIS: **184,429,275 bytes**. Публичные имена: `SCALEGO-0.2.0-alpha.1-Portable.exe`, `SCALEGO-0.2.0-alpha.1-Setup.exe`, `SHA256SUMS.txt`. Оба пакета используют один проверенный набор ресурсов. Полная установка/удаление NSIS остаётся отдельной ручной проверкой.
+Portable: **184,224,711 bytes**; NSIS: **184,435,393 bytes**. Публичные имена: `SCALEGO-0.3.0-alpha.1-Portable.exe`, `SCALEGO-0.3.0-alpha.1-Setup.exe`, `SHA256SUMS.txt`. Оба пакета используют один проверенный набор ресурсов. Полная установка/удаление NSIS остаётся отдельной ручной проверкой.
 
 ## Проверки разработки
 
@@ -59,7 +59,7 @@ Portable: **184,218,590 bytes**; NSIS: **184,429,275 bytes**. Публичные
 
 Уменьшение около 31,4 МБ обусловлено исключением ESRGAN-family weights по лицензионному gate. Real-CUGAN добавляет executable **6,656,512 bytes** и Clean weights **7,983,814 bytes**. RealESRNet добавляет **33,540,549 bytes** только в локальный evaluation runtime, используя существующий ESRGAN executable **6,161,408 bytes**. Размер каждой модели приведён в [MODEL_AUDIT](MODEL_AUDIT.md).
 
-Это исторические измерения до включения всех ESRGAN-family weights. Исходный baseline сохранён в `artifacts/multi-engine/baseline-size.json`. Текущие пакеты находятся в `release/0.2.0-alpha.1/`; `node scripts/verify-package.cjs` пересоздаёт отчёт актуальной сборки в `artifacts/multi-engine/package-verification.json` и её `SHA256SUMS.txt`. Генерируемые файлы не коммитятся.
+Это исторические измерения до включения всех ESRGAN-family weights. Исходный baseline сохранён в `artifacts/multi-engine/baseline-size.json`. Текущие пакеты находятся в `release/0.3.0-alpha.1/`; `node scripts/verify-package.cjs` пересоздаёт отчёт актуальной сборки в `artifacts/multi-engine/package-verification.json` и её `SHA256SUMS.txt`. Генерируемые файлы не коммитятся.
 
 ## Что это не подтверждает
 
